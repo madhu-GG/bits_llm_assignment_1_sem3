@@ -1,0 +1,41 @@
+# =============================================================================
+# Medical & Clinical Literature LLM assignment - full dependency set
+# Works on CPU, CUDA, ROCm, Apple MPS, Intel XPU and TPU/XLA runtimes.
+# Install with:  pip install -r requirements.txt
+# =============================================================================
+
+# --- Notebook / runtime -------------------------------------------------------
+ipykernel>=6.29
+ipywidgets>=8.1
+jupyter>=1.0
+
+# --- Data extraction & corpus building ---------------------------------------
+pypdf>=5.0
+reportlab>=4.0
+
+# --- Reporting ----------------------------------------------------------------
+python-docx>=1.1
+
+# --- Data handling ------------------------------------------------------------
+numpy>=1.26
+pandas>=2.0
+pyarrow>=15.0
+matplotlib>=3.8
+tqdm>=4.66
+
+# --- Core modelling stack -----------------------------------------------------
+torch>=2.2
+transformers>=4.45
+tokenizers>=0.20
+accelerate>=0.34
+safetensors>=0.4
+sentencepiece>=0.2
+datasets>=2.20
+huggingface-hub>=0.24
+
+# --- Parameter-efficient fine-tuning -----------------------------------------
+peft>=0.13
+trl>=0.10
+
+# --- Optional 4-bit quantisation (CUDA/Linux only; skipped elsewhere) --------
+bitsandbytes>=0.43; platform_system == "Linux"

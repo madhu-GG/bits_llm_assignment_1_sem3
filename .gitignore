@@ -3,3 +3,5 @@
 raw_pdfs/*
 domain_corpus/*
 artifacts/*
+clean_corpus/*
+extracted_text/*
