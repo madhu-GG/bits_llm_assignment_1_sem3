@@ -1,0 +1,18 @@
+[PAGE 1]\nMedical and Clinical Literature — Starter Document
+Heart failure and congestion
+Document type: Educational clinical literature summary
+Scope: General medical and clinical concepts for language-model domain adaptation.
+Abstract
+Heart failure is a clinical syndrome in which structural or functional cardiac abnormality causes symptoms and signs
+such as breathlessness, fatigue, or fluid retention. Classification can include the left-ventricular ejection fraction and the
+clinical stage.
+Key concepts
+1. Dyspnea, orthopnea, edema, fatigue, elevated jugular venous pressure, and pulmonary crackles may be present.
+2. Echocardiography helps characterize cardiac structure and systolic function.
+3. Management addresses congestion, contributing disease, guideline-directed medicines, monitoring, and self-care
+education.
+4. Sudden worsening breathlessness, chest pain, confusion, or fainting requires urgent clinical assessment.
+5. Daily weight trends can help detect fluid changes when used as part of an agreed monitoring plan.
+Interpretation note
+This educational summary supports literature-processing experiments and is not a substitute for current clinical
+guidelines, professional judgment, or individualized medical care.

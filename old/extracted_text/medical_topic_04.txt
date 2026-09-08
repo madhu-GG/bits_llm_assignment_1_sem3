@@ -1,0 +1,18 @@
+[PAGE 1]\nMedical and Clinical Literature — Starter Document
+Community-acquired pneumonia
+Document type: Educational clinical literature summary
+Scope: General medical and clinical concepts for language-model domain adaptation.
+Abstract
+Community-acquired pneumonia is an acute infection of the lung acquired outside a hospital or long-term care setting.
+Evaluation combines symptoms, examination, imaging when appropriate, and assessment of illness severity.
+Key concepts
+1. Fever, cough, sputum production, dyspnea, pleuritic chest pain, and abnormal lung findings may occur.
+2. Severity assessment helps determine whether outpatient care, hospital admission, or critical care is appropriate.
+3. Antibiotic selection should consider likely pathogens, local resistance patterns, allergies, comorbidities, and recent
+antibiotic exposure.
+4. Supportive care includes assessment of oxygenation, hydration, and complications.
+5. Vaccination, hand hygiene, smoking cessation, and management of chronic disease can reduce respiratory infection
+risk.
+Interpretation note
+This educational summary supports literature-processing experiments and is not a substitute for current clinical
+guidelines, professional judgment, or individualized medical care.

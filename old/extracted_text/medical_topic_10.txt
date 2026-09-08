@@ -1,0 +1,19 @@
+[PAGE 1]\nMedical and Clinical Literature — Starter Document
+Adverse drug reactions and medication safety
+Document type: Educational clinical literature summary
+Scope: General medical and clinical concepts for language-model domain adaptation.
+Abstract
+An adverse drug reaction is a harmful and unintended response to a medicine at doses normally used for prevention,
+diagnosis, or treatment. Medication safety relies on careful prescribing, dispensing, administration, monitoring, and
+communication.
+Key concepts
+1. A medication history should include prescription medicines, over-the-counter products, supplements, allergies, and
+previous reactions.
+2. Older age, kidney or liver impairment, polypharmacy, and drug interactions can increase medication-related risk.
+3. A temporal relationship is useful when evaluating causality but does not prove that a medicine caused an event.
+4. Medication reconciliation compares the medicines a person is taking with the medicines ordered during a transition
+of care.
+5. Serious or unexpected suspected reactions should be reported through the relevant pharmacovigilance system.
+Interpretation note
+This educational summary supports literature-processing experiments and is not a substitute for current clinical
+guidelines, professional judgment, or individualized medical care.

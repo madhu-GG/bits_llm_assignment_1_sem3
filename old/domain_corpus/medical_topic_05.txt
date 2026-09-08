@@ -1,0 +1,18 @@
+[PAGE 1]
+Medical and Clinical Literature — Starter Document
+Vaccination and immune protection
+Document type: Educational clinical literature summary
+Scope: General medical and clinical concepts for language-model domain adaptation.
+Abstract
+Vaccination exposes the immune system to an antigen or antigenic material in a controlled way so that immune
+memory can develop without the risks of the disease itself. Recommendations vary with age, risk, geography, and
+vaccine characteristics.
+Key concepts
+1. Primary immune responses create memory cells that can support a faster response after later exposure.
+2. High vaccination coverage can reduce transmission and protect people who cannot receive particular vaccines.
+3. Mild local pain or fever can occur after vaccination and usually reflects immune activation.
+4. Contraindications and precautions are vaccine-specific and should be checked against current official guidance.
+5. Vaccine effectiveness and vaccine efficacy are related but are measured in different settings.
+Interpretation note
+This educational summary supports literature-processing experiments and is not a substitute for current clinical
+guidelines, professional judgment, or individualized medical care.

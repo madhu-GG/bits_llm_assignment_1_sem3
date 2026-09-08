@@ -1,0 +1,18 @@
+[PAGE 1]
+Medical and Clinical Literature — Starter Document
+Evidence-based medicine
+Document type: Educational clinical literature summary
+Scope: General medical and clinical concepts for language-model domain adaptation.
+Abstract
+Evidence-based medicine integrates the best available research evidence with clinical expertise and the values and
+circumstances of the patient. Evidence quality depends on study design, risk of bias, consistency, directness, and
+precision.
+Key concepts
+1. A focused clinical question often separates the population, intervention, comparison, and outcome.
+2. Systematic reviews use explicit methods to identify, appraise, and synthesize relevant studies.
+3. Confidence intervals describe uncertainty around an estimated effect and are not the same as clinical importance.
+4. Relative effects can appear large even when absolute differences are small if baseline risk is low.
+5. Shared decision-making communicates benefits, harms, uncertainty, and patient priorities.
+Interpretation note
+This educational summary supports literature-processing experiments and is not a substitute for current clinical
+guidelines, professional judgment, or individualized medical care.

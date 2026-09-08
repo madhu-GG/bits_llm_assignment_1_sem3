@@ -1,0 +1,21 @@
+{
+  "pdf_documents": 12,
+  "pages_extracted": 12,
+  "raw_extracted_characters": 14817,
+  "clean_corpus_bytes": 14841,
+  "clean_corpus_megabytes": 0.0142,
+  "cleaning_counts": {
+    "before": 12,
+    "after_length": 12,
+    "after_repetition": 12,
+    "after_deduplication": 12,
+    "after_language": 12
+  },
+  "removed_by_step": {
+    "length_filter": 0,
+    "repetition_filter": 0,
+    "deduplication": 0,
+    "language_filter": 0
+  },
+  "greatest_impact": "none (no documents removed)"
+}

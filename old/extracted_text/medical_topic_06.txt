@@ -1,0 +1,17 @@
+[PAGE 1]\nMedical and Clinical Literature — Starter Document
+Antimicrobial resistance
+Document type: Educational clinical literature summary
+Scope: General medical and clinical concepts for language-model domain adaptation.
+Abstract
+Antimicrobial resistance occurs when microorganisms change or acquire mechanisms that reduce the effectiveness of
+medicines used against them. Resistance makes infections harder to treat and can increase illness, mortality, and
+healthcare costs.
+Key concepts
+1. Selective pressure from antimicrobial exposure can favor survival of resistant organisms.
+2. Stewardship promotes the right drug, dose, route, and duration for a documented or suspected infection.
+3. Diagnostic testing can support targeted therapy and reduce unnecessary broad-spectrum treatment.
+4. Infection prevention, vaccination, environmental hygiene, and surveillance complement antibiotic stewardship.
+5. Resistance may spread through genetic mechanisms such as mutation and horizontal gene transfer.
+Interpretation note
+This educational summary supports literature-processing experiments and is not a substitute for current clinical
+guidelines, professional judgment, or individualized medical care.

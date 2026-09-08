@@ -1,0 +1,22 @@
+[PAGE 1]
+Medical and Clinical Literature — Starter Document
+Hypertension and cardiovascular risk
+Document type: Educational clinical literature summary
+Scope: General medical and clinical concepts for language-model domain adaptation.
+Abstract
+Hypertension is persistent elevation of arterial blood pressure. Long-term pressure load can injure the heart, brain,
+kidneys, and blood vessels, so risk assessment considers both blood-pressure measurements and other
+cardiovascular risk factors.
+Key concepts
+1. Repeated, correctly performed measurements are more informative than a single reading.
+2. Lifestyle measures include reducing dietary sodium, being physically active, maintaining a healthy weight, and
+avoiding tobacco.
+3. Antihypertensive treatment is selected according to blood pressure, overall cardiovascular risk, comorbidities, and
+patient preferences.
+4. Uncontrolled hypertension increases the likelihood of stroke, coronary disease, heart failure, and chronic kidney
+disease.
+5. Home blood-pressure monitoring can help identify white-coat or masked hypertension when used with a validated
+device.
+Interpretation note
+This educational summary supports literature-processing experiments and is not a substitute for current clinical
+guidelines, professional judgment, or individualized medical care.

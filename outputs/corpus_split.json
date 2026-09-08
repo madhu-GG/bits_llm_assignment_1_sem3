@@ -1,0 +1,20 @@
+{
+  "seed": 42,
+  "eval_fraction": 0.1,
+  "train_files": [
+    "medical_topic_01.txt",
+    "medical_topic_02.txt",
+    "medical_topic_03.txt",
+    "medical_topic_04.txt",
+    "medical_topic_05.txt",
+    "medical_topic_07.txt",
+    "medical_topic_09.txt",
+    "medical_topic_10.txt",
+    "medical_topic_11.txt",
+    "medical_topic_12.txt"
+  ],
+  "eval_files": [
+    "medical_topic_06.txt",
+    "medical_topic_08.txt"
+  ]
+}
