@@ -1,3 +1,7 @@
 link 1 -> https://pmc.ncbi.nlm.nih.gov/?term=open+access%5Bfilter%5D+AND+has_pdf%5Bfilter%5D+AND+(hypertension+OR+diabetes+OR+asthma+OR+pneumonia) - PMC Journal (under Collections)
 link 2 -> https://dev.europepmc.org/downloads/openaccess?utm_source=chatgpt.com
 link 3 - https://stacks.cdc.gov/?utm_source=chatgpt.com
+
+Corpus expansion note (2026-09-09): additional open-access PDFs were retrieved from the PMC/Europe PMC collections using the official Europe PMC PDF endpoint. Files are named by PMCID in raw_pdfs/ and cover hypertension, diabetes, asthma, and pneumonia. The CDC Stacks source remains documented above but was not needed after the PMC/Europe PMC corpus exceeded the 10 MB cleaned-text target.
+
+Reproducibility manifest: outputs/pdf_manifest.json. It records each local filename, PMCID, article/source URL, exact download URL, retrieval date, SHA-256 checksum, file size, page count, and extracted/cleaned text paths and sizes.

@@ -1,17 +1,15 @@
 {
-  "pdf_documents": 77,
-  "valid_extractions": 77,
-  "extraction_errors": [],
-  "pages_extracted": 1022,
-  "raw_extracted_characters": 5312743,
-  "clean_corpus_bytes": 5379113,
-  "clean_corpus_megabytes": 5.1299,
+  "pdf_documents": 152,
+  "pages_extracted": 2339,
+  "raw_extracted_characters": 11559900,
+  "clean_corpus_bytes": 11685635,
+  "clean_corpus_megabytes": 11.1443,
   "cleaning_counts": {
-    "before": 77,
-    "after_length": 77,
-    "after_repetition": 77,
-    "after_deduplication": 77,
-    "after_language": 77
+    "before": 152,
+    "after_length": 152,
+    "after_repetition": 152,
+    "after_deduplication": 152,
+    "after_language": 152
   },
   "removed_by_step": {
     "length_filter": 0,
