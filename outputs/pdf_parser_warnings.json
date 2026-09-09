@@ -1,7 +1,0 @@
-{
-  "warning_count": 79,
-  "by_message": {
-    "Multiple definitions in dictionary at byte <offset> for key /MediaBox": 79
-  },
-  "note": "These are recoverable non-compliance warnings handled by pypdf with strict=False; extraction completed."
-}

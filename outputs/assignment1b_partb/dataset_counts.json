@@ -1,9 +1,0 @@
-{
-  "documents_used": 12,
-  "total_pairs": 120,
-  "train_pairs": 96,
-  "eval_pairs": 24,
-  "train_fraction": 0.8,
-  "eval_fraction": 0.19999999999999996,
-  "synthetic_prompt_template": "Read the text below and generate 10 instruction-response pairs in JSON format based ONLY on this text. Each entry must have instruction and response keys."
-}
