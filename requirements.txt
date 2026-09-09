@@ -1,9 +1,23 @@
 pypdf
-pandas
 pyarrow
 matplotlib
 torch
 transformers
+safetensors
 accelerate
 sentencepiece
 sacremoses
+
+# Part B QLoRA/SFT stack. bitsandbytes is used by the remote Linux/CUDA
+# notebook and is excluded on macOS/local CPU environments.
+datasets
+peft
+trl
+bitsandbytes; platform_system == "Linux"
+
+# NumPy is used for reproducibility seeding. Avoid force-reinstalling it over
+# a prebuilt conda stack; the notebook writes Parquet through PyArrow.
+numpy>=1.23,<2
+
+# SciPy and scikit-learn are intentionally not required. Transformers imports
+# scikit-learn optionally when it is installed.
