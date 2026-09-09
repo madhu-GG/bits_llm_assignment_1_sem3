@@ -1,0 +1,3 @@
+link 1 -> https://pmc.ncbi.nlm.nih.gov/?term=open+access%5Bfilter%5D+AND+has_pdf%5Bfilter%5D+AND+(hypertension+OR+diabetes+OR+asthma+OR+pneumonia) - PMC Journal (under Collections)
+link 2 -> https://dev.europepmc.org/downloads/openaccess?utm_source=chatgpt.com
+link 3 - https://stacks.cdc.gov/?utm_source=chatgpt.com
