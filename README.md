@@ -1,21 +1,22 @@
 # Medical LLM assignment
 
-Colab T4 target: about **15 GB GPU** and **15 GB CPU RAM**. Run one notebook at a time with **Runtime → Run all**. There are no `RUN_*` flags.
+Colab T4 target: about **15 GB GPU** and **15 GB CPU RAM**. Open **`Assignment.ipynb`** and use **Runtime → Run all**. There are no `RUN_*` flags. Headings are prefixed **1A ·** and **2A ·**.
 
 ## Layout
 
 ```
-Assignment1A.ipynb      CPT + QLoRA SFT (Assignment 1A, 15 marks)
-Assignment2A.ipynb      prompting + DPO (Assignment 2A, 20 marks)
+Assignment.ipynb        1A (CPT + QLoRA) then 2A (prompting + DPO), one Run all
+Assignment1A.ipynb      1A only, if you want to stop after the adapters
+Assignment2A.ipynb      2A only, after adapter_B already exists
 src/                    shared helpers (corpus fetch, T4 memory, A2 prompting)
 requirements.txt
 preference_dataset.jsonl
 dataset_sources.txt
 ```
 
-PDFs are **not** copied by hand. `Assignment1A.ipynb` downloads `raw_pdfs.tgz` from the public dataset [`madhugg93/MedicalText`](https://huggingface.co/datasets/madhugg93/MedicalText) if `raw_pdfs/` is empty. The 12 `medical_topic_*.pdf` stubs are ignored (~0.04 MB). The real corpus is ~140 PMC papers → ~11 MB cleaned text.
+PDFs are **not** copied by hand. The notebook downloads `raw_pdfs.tgz` from the public dataset [`madhugg93/MedicalText`](https://huggingface.co/datasets/madhugg93/MedicalText) if `raw_pdfs/` is empty. The 12 `medical_topic_*.pdf` stubs are ignored (~0.04 MB). The real corpus is ~140 PMC papers → ~11 MB cleaned text.
 
-`Assignment2A.ipynb` is the prompting + DPO notebook. There are no `BACKEND` / `RUN_DPO` flags. CUDA or Apple MPS plus `outputs/qlora_adapters/adapter_B` uses the Assignment 1 adapter for Parts A/B and for DPO. CPU keeps Parts A/B on the offline corpus backend (hundreds of 1.5B generations would take many hours) and still runs a short LoRA DPO (8 steps) if the adapter exists.
+`Assignment.ipynb` trains adapter B in 1A Part B2, then 2A loads it on CUDA or Apple MPS. CPU keeps 2A Parts A/B on the offline corpus backend (hundreds of 1.5B generations would take many hours) and still runs a short LoRA DPO (8 steps) if the adapter exists.
 
 CUDA keeps the brief as written: 5-sample self-consistency, 5 APE variants, 3 DPO epochs. MPS uses the same adapter path with fewer iterations so a local hour is realistic: 3-sample self-consistency, 3 APE variants, ~20 DPO steps, 128-token generations.
 
@@ -24,8 +25,8 @@ CUDA keeps the brief as written: 5-sample self-consistency, 5 APE variants, 3 DP
 Colab's **Open notebook from GitHub** copies only the `.ipynb`, not `src/`. The first code cell clones this repo into `/content` when `src/` is missing, then `chdir`s into it. After that, Run all.
 
 1. Runtime → T4 GPU for the marked run, or CPU if that is all you have.
-2. Open `Assignment1A.ipynb` or `Assignment2A.ipynb` from GitHub or upload it.
-3. Run all. Run Assignment 1 first if you want Assignment 2 to use the real adapter.
+2. Open `Assignment.ipynb` from GitHub or upload it.
+3. Run all. 1A writes `outputs/qlora_adapters/adapter_B`; 2A uses it in the same session.
 
 If the GitHub repo is **private**, add a Colab secret named `GITHUB_TOKEN` (Settings → Secrets). Do not paste a token into the notebook. If the repo is public, no token is needed.
 
