@@ -18,9 +18,13 @@ Assignment 2 (prompting + DPO) helpers already live in `src/`. The combined Assi
 
 ## Colab
 
-1. Upload this folder (or clone it) so `src/` sits next to `Assignment1A.ipynb`.
-2. Runtime → T4 GPU.
-3. Open `Assignment1A.ipynb` → Run all.
+Colab's **Open notebook from GitHub** copies only the `.ipynb`, not `src/`. The first code cell clones this repo into `/content` when `src/` is missing, then `chdir`s into it. After that, Run all.
+
+1. Runtime → T4 GPU.
+2. Open `Assignment1A.ipynb` from GitHub or upload it.
+3. Run all.
+
+If the GitHub repo is **private**, add a Colab secret named `GITHUB_TOKEN` (Settings → Secrets). Do not paste a token into the notebook. If the repo is public, no token is needed.
 
 The first cell installs packages. CPT is about **200–300 optimiser steps** (one packed epoch, capped for the T4), not 5. Expect 15–30 minutes for CPT, then three short QLoRA runs. Only one model is in memory at a time.
 
