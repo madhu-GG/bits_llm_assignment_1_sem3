@@ -1,0 +1,188 @@
+{
+  "backend_sft": {
+    "label": "sft_adapter_B",
+    "backend": "offline",
+    "base_model_id": "microsoft/biogpt-large",
+    "adapter_path": null,
+    "seed": 7,
+    "aligned": false
+  },
+  "backend_dpo": {
+    "label": "dpo_adapter",
+    "backend": "offline",
+    "base_model_id": "microsoft/biogpt-large",
+    "adapter_path": null,
+    "seed": 7,
+    "aligned": true
+  },
+  "c1_stats": {
+    "pairs": 95,
+    "unique_prompts": 19,
+    "pairs_by_chosen_source": {
+      "ape": 19,
+      "cot": 19,
+      "instruction": 19,
+      "self_consistency_5": 19,
+      "self_reflection": 19
+    },
+    "avg_chosen_words": 117.6,
+    "avg_rejected_words": 31.7,
+    "avg_length_delta_words": 85.9,
+    "avg_score_margin": 46.4,
+    "min_score_margin": 26.89
+  },
+  "c2_config": {
+    "beta": 0.1,
+    "num_train_epochs": 3,
+    "learning_rate": 5e-05,
+    "per_device_train_batch_size": 1,
+    "gradient_accumulation_steps": 8,
+    "max_length": 768,
+    "max_prompt_length": 256,
+    "lora_r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "seed": 7
+  },
+  "c2_epoch_metrics": [],
+  "c3_rows": [
+    {
+      "n": 1,
+      "query": "How should a written asthma action plan help a patient recognise worsening symptoms?",
+      "sft_output": "Asthma is a heterogeneous respiratory disease characterized by variable respiratory symptoms and variable expiratory airflow limitation. Typical symptoms include wheeze, shortness of breath, chest tightness, and cough that vary over time.",
+      "dpo_output": "Asthma is a heterogeneous respiratory disease characterized by variable respiratory symptoms and variable expiratory airflow limitation. Airway inflammation and bronchial hyperresponsiveness contribute to symptoms in many patients.\n1. Typical symptoms include wheeze, shortness of breath, chest tightness, and cough that vary over time.\n2. Diagnosis requires a compatible history together with objective evidence of variable expiratory airflow limitation when possible.\n3. Inhaled corticosteroids reduce airway inflammation and the risk of exacerbations for patients who need controller therapy.\nLimitation: the conclusion depends on the measured values and the patient context (see also heart failure and congestion).\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "sft_score": {
+        "grounding": 12.25,
+        "structure": 0.0,
+        "completeness": 13.78,
+        "specificity": 0.0,
+        "non_repetition": 10.0,
+        "total": 36.03,
+        "words": 31
+      },
+      "dpo_score": {
+        "grounding": 28.0,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 7.5,
+        "non_repetition": 10.0,
+        "total": 75.5,
+        "words": 106
+      },
+      "improved": "Y",
+      "reason": "total +39.5 (structure 0->10, grounding 12.2->28.0, completeness 13.8->20.0, specificity 0.0->7.5)"
+    },
+    {
+      "n": 2,
+      "query": "What should a clinician check before reporting a suspected adverse drug reaction?",
+      "sft_output": "An adverse drug reaction is a harmful and unintended response to a medicine at doses normally used for prevention, diagnosis, or treatment. A medication history should include prescription medicines, over-the-counter products, supplements, allergies, and previous reactions.",
+      "dpo_output": "An adverse drug reaction is a harmful and unintended response to a medicine at doses normally used for prevention, diagnosis, or treatment. Medication safety relies on careful prescribing, dispensing, administration, monitoring, and communication.\n1. A medication history should include prescription medicines, over-the-counter products, supplements, allergies, and previous reactions.\n2. Older age, kidney or liver impairment, polypharmacy, and drug interactions can increase medication-related risk.\n3. A temporal relationship is useful when evaluating causality but does not prove that a medicine caused an event.\nLimitation: the conclusion depends on the measured values and the patient context (see also antimicrobial resistance).\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "sft_score": {
+        "grounding": 14.0,
+        "structure": 0.0,
+        "completeness": 16.89,
+        "specificity": 0.0,
+        "non_repetition": 10.0,
+        "total": 40.89,
+        "words": 38
+      },
+      "dpo_score": {
+        "grounding": 29.75,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 11.0,
+        "non_repetition": 10.0,
+        "total": 80.75,
+        "words": 112
+      },
+      "improved": "Y",
+      "reason": "total +39.9 (structure 0->10, grounding 14.0->29.8, completeness 16.9->20.0, specificity 0.0->11.0)"
+    },
+    {
+      "n": 3,
+      "query": "Why can a relative risk reduction look impressive when the absolute benefit is small?",
+      "sft_output": "Evidence-based medicine integrates the best available research evidence with clinical expertise and the values and circumstances of the patient. A focused clinical question often separates the population, intervention, comparison, and outcome.",
+      "dpo_output": "Evidence-based medicine integrates the best available research evidence with clinical expertise and the values and circumstances of the patient. Evidence quality depends on study design, risk of bias, consistency, directness, and precision.\n1. A focused clinical question often separates the population, intervention, comparison, and outcome.\n2. Systematic reviews use explicit methods to identify, appraise, and synthesize relevant studies.\n3. Confidence intervals describe uncertainty around an estimated effect and are not the same as clinical importance.\nLimitation: the conclusion depends on the measured values and the patient context (see also clinical trials and intervention evidence).\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "sft_score": {
+        "grounding": 10.5,
+        "structure": 0.0,
+        "completeness": 14.22,
+        "specificity": 0.0,
+        "non_repetition": 10.0,
+        "total": 34.72,
+        "words": 32
+      },
+      "dpo_score": {
+        "grounding": 24.5,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 12.5,
+        "non_repetition": 10.0,
+        "total": 77.0,
+        "words": 106
+      },
+      "improved": "Y",
+      "reason": "total +42.3 (structure 0->10, grounding 10.5->24.5, completeness 14.2->20.0, specificity 0.0->12.5)"
+    },
+    {
+      "n": 4,
+      "query": "What is the purpose of medication reconciliation during a transition of care?",
+      "sft_output": "An adverse drug reaction is a harmful and unintended response to a medicine at doses normally used for prevention, diagnosis, or treatment. A medication history should include prescription medicines, over-the-counter products, supplements, allergies, and previous reactions.",
+      "dpo_output": "An adverse drug reaction is a harmful and unintended response to a medicine at doses normally used for prevention, diagnosis, or treatment. Medication safety relies on careful prescribing, dispensing, administration, monitoring, and communication.\n1. A medication history should include prescription medicines, over-the-counter products, supplements, allergies, and previous reactions.\n2. Older age, kidney or liver impairment, polypharmacy, and drug interactions can increase medication-related risk.\n3. A temporal relationship is useful when evaluating causality but does not prove that a medicine caused an event.\nLimitation: the conclusion depends on the measured values and the patient context (see also asthma and airway inflammation).\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "sft_score": {
+        "grounding": 14.0,
+        "structure": 0.0,
+        "completeness": 16.89,
+        "specificity": 0.0,
+        "non_repetition": 10.0,
+        "total": 40.89,
+        "words": 38
+      },
+      "dpo_score": {
+        "grounding": 29.75,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 11.0,
+        "non_repetition": 10.0,
+        "total": 80.75,
+        "words": 114
+      },
+      "improved": "Y",
+      "reason": "total +39.9 (structure 0->10, grounding 14.0->29.8, completeness 16.9->20.0, specificity 0.0->11.0)"
+    },
+    {
+      "n": 5,
+      "query": "How does high vaccination coverage protect people who cannot be vaccinated themselves?",
+      "sft_output": "Vaccination exposes the immune system to an antigen or antigenic material in a controlled way so that immune memory can develop without the risks of the disease itself. Primary immune responses create memory cells that can support a faster response after later exposure.",
+      "dpo_output": "Vaccination exposes the immune system to an antigen or antigenic material in a controlled way so that immune memory can develop without the risks of the disease itself. Recommendations vary with age, risk, geography, and vaccine characteristics.\n1. Primary immune responses create memory cells that can support a faster response after later exposure.\n2. High vaccination coverage can reduce transmission and protect people who cannot receive particular vaccines.\n3. Mild local pain or fever can occur after vaccination and usually reflects immune activation.\nLimitation: the conclusion depends on the measured values and the patient context (see also antimicrobial resistance).\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "sft_score": {
+        "grounding": 15.75,
+        "structure": 0.0,
+        "completeness": 19.11,
+        "specificity": 3.0,
+        "non_repetition": 10.0,
+        "total": 47.86,
+        "words": 43
+      },
+      "dpo_score": {
+        "grounding": 22.75,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 13.5,
+        "non_repetition": 10.0,
+        "total": 76.25,
+        "words": 110
+      },
+      "improved": "Y",
+      "reason": "total +28.4 (structure 0->10, grounding 15.8->22.8, completeness 19.1->20.0, specificity 3.0->13.5)"
+    }
+  ],
+  "c3_summary": {
+    "queries": 5,
+    "improved": 5,
+    "not_improved": 0,
+    "mean_sft_score": 40.08,
+    "mean_dpo_score": 78.05,
+    "mean_delta": 37.97
+  }
+}

@@ -1,0 +1,560 @@
+{
+  "backend": {
+    "label": "sft_adapter_B",
+    "backend": "offline",
+    "base_model_id": "microsoft/biogpt-large",
+    "adapter_path": null,
+    "seed": 7,
+    "aligned": false
+  },
+  "a1_rows": [
+    {
+      "strategy": "zero_shot",
+      "query": "Why are repeated blood-pressure measurements more informative than a single reading in hypertension?",
+      "answer": "Hypertension is persistent elevation of arterial blood pressure. Repeated, correctly performed measurements are more informative than a single reading.",
+      "score": {
+        "grounding": 5.25,
+        "structure": 0.0,
+        "completeness": 8.44,
+        "specificity": 0.0,
+        "non_repetition": 10.0,
+        "total": 23.69,
+        "words": 19
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "few_shot_3",
+      "query": "Why are repeated blood-pressure measurements more informative than a single reading in hypertension?",
+      "answer": "Hypertension is persistent elevation of arterial blood pressure. Long-term pressure load can injure the heart, brain, kidneys, and blood vessels, so risk assessment considers both blood-pressure measurements and other cardiovascular risk factors. Repeated, correctly performed measurements are more informative than a single reading. Lifestyle measures include reducing dietary sodium, being physically active, maintaining a healthy weight, and avoiding tobacco.",
+      "score": {
+        "grounding": 21.0,
+        "structure": 0.0,
+        "completeness": 20.0,
+        "specificity": 3.0,
+        "non_repetition": 10.0,
+        "total": 54.0,
+        "words": 61
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "instruction",
+      "query": "Why are repeated blood-pressure measurements more informative than a single reading in hypertension?",
+      "answer": "Overview: Hypertension is persistent elevation of arterial blood pressure. Long-term pressure load can injure the heart, brain, kidneys, and blood vessels, so risk assessment considers both blood-pressure measurements and other cardiovascular risk factors.\n1. Repeated, correctly performed measurements are more informative than a single reading.\n2. Lifestyle measures include reducing dietary sodium, being physically active, maintaining a healthy weight, and avoiding tobacco.\n3. Antihypertensive treatment is selected according to blood pressure, overall cardiovascular risk, comorbidities, and patient preferences.\n4. Uncontrolled hypertension increases the likelihood of stroke, coronary disease, heart failure, and chronic kidney disease.\nRelated corpus topic: Chronic kidney disease and renal function.\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "score": {
+        "grounding": 31.5,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 11.0,
+        "non_repetition": 10.0,
+        "total": 82.5,
+        "words": 116
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "self_consistency_5",
+      "query": "Why are repeated blood-pressure measurements more informative than a single reading in hypertension?",
+      "answer": "Overview: Hypertension is persistent elevation of arterial blood pressure. Long-term pressure load can injure the heart, brain, kidneys, and blood vessels, so risk assessment considers both blood-pressure measurements and other cardiovascular risk factors.\n1. Repeated, correctly performed measurements are more informative than a single reading.\n2. Lifestyle measures include reducing dietary sodium, being physically active, maintaining a healthy weight, and avoiding tobacco.\n3. Uncontrolled hypertension increases the likelihood of stroke, coronary disease, heart failure, and chronic kidney disease.\n4. Antihypertensive treatment is selected according to blood pressure, overall cardiovascular risk, comorbidities, and patient preferences.\nRelated corpus topic: Chronic kidney disease and renal function.\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "score": {
+        "grounding": 31.5,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 11.0,
+        "non_repetition": 10.0,
+        "total": 82.5,
+        "words": 116
+      },
+      "vote_counts": {
+        "blood|cardiovascular|chronic|disease|heart|hypertension|pressure|risk": 2,
+        "according|blood|cardiovascular|hypertension|measurements|patient|pressure|risk": 2,
+        "blood|chronic|disease|heart|hypertension|kidney|measurements|pressure": 1
+      },
+      "majority_size": 2,
+      "agreement": 0.4,
+      "backend": "offline"
+    },
+    {
+      "strategy": "ape",
+      "query": "Why are repeated blood-pressure measurements more informative than a single reading in hypertension?",
+      "answer": "1. Definition: Hypertension is persistent elevation of arterial blood pressure. Long-term pressure load can injure the heart, brain, kidneys, and blood vessels, so risk assessment considers both blood-pressure measurements and other cardiovascular risk factors.\n2. Why it matters: Repeated, correctly performed measurements are more informative than a single reading.\n3. What to monitor: Lifestyle measures include reducing dietary sodium, being physically active, maintaining a healthy weight, and avoiding tobacco.\n4. Educational summary of published medical literature. Not patient-specific clinical advice.\n1. Repeated, correctly performed measurements are more informative than a single reading.\n2. Lifestyle measures include reducing dietary sodium, being physically active, maintaining a healthy weight, and avoiding tobacco.\n3. Antihypertensive treatment is selected according to blood pressure, overall cardiovascular risk, comorbidities, and patient preferences.\n4. Uncontrolled hypertension increases the likelihood of stroke, coronary disease, heart failure, and chronic kidney disease.",
+      "score": {
+        "grounding": 31.5,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 15.0,
+        "non_repetition": 10.0,
+        "total": 86.5,
+        "words": 144
+      },
+      "selected_prompt": "You are a careful medical-literature assistant. You answer from the supplied domain corpus, you state uncertainty explicitly, and you never give patient-specific clinical advice.\n\nAnswer using only corpus-supported statements and name the source topic.\n\nQuestion: Why are repeated blood-pressure measurements more informative than a single reading in hypertension?\nAnswer:",
+      "variants_tried": 5,
+      "variant_scores": [
+        86.5,
+        52.0,
+        47.0,
+        75.25,
+        47.0
+      ],
+      "raw_proposals": "1. Answer using only corpus-supported statements and name the source topic.\n2. Give a numbered answer: definition, two governing considerations, one caution.\n3. Explain the mechanism first, then the practical implication, then the limitation.\n4. Write a study note: 1. Define. 2. Why it matters. 3. What to monitor. 4. Educational caveat.\n5. Answer concisely but completely, stating the uncertainty that remains.",
+      "backend": "offline"
+    },
+    {
+      "strategy": "zero_shot",
+      "query": "Explain the difference between sensitivity and specificity, and why predictive values depend on prevalence.",
+      "answer": "Diagnostic test evaluation describes how test results relate to a reference standard or clinical outcome. Sensitivity is the proportion of people with the target condition who test positive.",
+      "score": {
+        "grounding": 12.25,
+        "structure": 0.0,
+        "completeness": 12.44,
+        "specificity": 2.0,
+        "non_repetition": 10.0,
+        "total": 36.69,
+        "words": 28
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "few_shot_3",
+      "query": "Explain the difference between sensitivity and specificity, and why predictive values depend on prevalence.",
+      "answer": "Diagnostic test evaluation describes how test results relate to a reference standard or clinical outcome. Sensitivity and specificity are properties of a test in a defined setting, while predictive values depend strongly on disease prevalence. Sensitivity is the proportion of people with the target condition who test positive. Specificity is the proportion of people without the target condition who test negative.",
+      "score": {
+        "grounding": 19.25,
+        "structure": 0.0,
+        "completeness": 20.0,
+        "specificity": 10.0,
+        "non_repetition": 10.0,
+        "total": 59.25,
+        "words": 61
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "instruction",
+      "query": "Explain the difference between sensitivity and specificity, and why predictive values depend on prevalence.",
+      "answer": "Overview: Diagnostic test evaluation describes how test results relate to a reference standard or clinical outcome. Sensitivity and specificity are properties of a test in a defined setting, while predictive values depend strongly on disease prevalence.\n1. Sensitivity is the proportion of people with the target condition who test positive.\n2. Specificity is the proportion of people without the target condition who test negative.\n3. A positive likelihood ratio indicates how much a positive result changes the odds of disease.\n4. A negative likelihood ratio indicates how much a negative result changes the odds of disease.\nRelated corpus topic: Evidence-based medicine.\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "score": {
+        "grounding": 28.0,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 15.0,
+        "non_repetition": 10.0,
+        "total": 83.0,
+        "words": 113
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "self_consistency_5",
+      "query": "Explain the difference between sensitivity and specificity, and why predictive values depend on prevalence.",
+      "answer": "Overview: Diagnostic test evaluation describes how test results relate to a reference standard or clinical outcome. Sensitivity and specificity are properties of a test in a defined setting, while predictive values depend strongly on disease prevalence.\n1. A negative likelihood ratio indicates how much a negative result changes the odds of disease.\n2. Sensitivity is the proportion of people with the target condition who test positive.\n3. Spectrum bias can occur when test performance is estimated in a study population unlike the population in practice.\n4. A positive likelihood ratio indicates how much a positive result changes the odds of disease.\nRelated corpus topic: Evidence-based medicine.\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "score": {
+        "grounding": 35.0,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 15.0,
+        "non_repetition": 10.0,
+        "total": 90.0,
+        "words": 118
+      },
+      "vote_counts": {
+        "clinical|condition|disease|negative|people|population|proportion|test": 1,
+        "changes|clinical|disease|indicates|likelihood|much|positive|test": 2,
+        "changes|clinical|condition|disease|indicates|negative|positive|test": 1,
+        "clinical|condition|disease|people|population|positive|proportion|test": 1
+      },
+      "majority_size": 2,
+      "agreement": 0.4,
+      "backend": "offline"
+    },
+    {
+      "strategy": "ape",
+      "query": "Explain the difference between sensitivity and specificity, and why predictive values depend on prevalence.",
+      "answer": "1. Definition: Diagnostic test evaluation describes how test results relate to a reference standard or clinical outcome. Sensitivity and specificity are properties of a test in a defined setting, while predictive values depend strongly on disease prevalence.\n2. Why it matters: Sensitivity is the proportion of people with the target condition who test positive.\n3. What to monitor: Specificity is the proportion of people without the target condition who test negative.\n4. Educational summary of published medical literature. Not patient-specific clinical advice.\n1. Sensitivity is the proportion of people with the target condition who test positive.\n2. Specificity is the proportion of people without the target condition who test negative.\n3. A positive likelihood ratio indicates how much a positive result changes the odds of disease.\n4. A negative likelihood ratio indicates how much a negative result changes the odds of disease.",
+      "score": {
+        "grounding": 28.0,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 15.0,
+        "non_repetition": 10.0,
+        "total": 83.0,
+        "words": 143
+      },
+      "selected_prompt": "You are a careful medical-literature assistant. You answer from the supplied domain corpus, you state uncertainty explicitly, and you never give patient-specific clinical advice.\n\nAnswer using only corpus-supported statements and name the source topic.\n\nQuestion: Explain the difference between sensitivity and specificity, and why predictive values depend on prevalence.\nAnswer:",
+      "variants_tried": 5,
+      "variant_scores": [
+        83.0,
+        64.0,
+        55.5,
+        83.0,
+        55.5
+      ],
+      "raw_proposals": "1. Answer using only corpus-supported statements and name the source topic.\n2. Give a numbered answer: definition, two governing considerations, one caution.\n3. Explain the mechanism first, then the practical implication, then the limitation.\n4. Write a study note: 1. Define. 2. Why it matters. 3. What to monitor. 4. Educational caveat.\n5. Answer concisely but completely, stating the uncertainty that remains.",
+      "backend": "offline"
+    },
+    {
+      "strategy": "zero_shot",
+      "query": "Why does antimicrobial stewardship reduce the spread of antimicrobial resistance?",
+      "answer": "Antimicrobial resistance occurs when microorganisms change or acquire mechanisms that reduce the effectiveness of medicines used against them. Selective pressure from antimicrobial exposure can favor survival of resistant organisms.",
+      "score": {
+        "grounding": 12.25,
+        "structure": 0.0,
+        "completeness": 12.89,
+        "specificity": 1.5,
+        "non_repetition": 10.0,
+        "total": 36.64,
+        "words": 29
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "few_shot_3",
+      "query": "Why does antimicrobial stewardship reduce the spread of antimicrobial resistance?",
+      "answer": "Antimicrobial resistance occurs when microorganisms change or acquire mechanisms that reduce the effectiveness of medicines used against them. Resistance makes infections harder to treat and can increase illness, mortality, and healthcare costs. Selective pressure from antimicrobial exposure can favor survival of resistant organisms. Stewardship promotes the right drug, dose, route, and duration for a documented or suspected infection.",
+      "score": {
+        "grounding": 22.75,
+        "structure": 0.0,
+        "completeness": 20.0,
+        "specificity": 5.0,
+        "non_repetition": 10.0,
+        "total": 57.75,
+        "words": 58
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "instruction",
+      "query": "Why does antimicrobial stewardship reduce the spread of antimicrobial resistance?",
+      "answer": "Overview: Antimicrobial resistance occurs when microorganisms change or acquire mechanisms that reduce the effectiveness of medicines used against them. Resistance makes infections harder to treat and can increase illness, mortality, and healthcare costs.\n1. Selective pressure from antimicrobial exposure can favor survival of resistant organisms.\n2. Stewardship promotes the right drug, dose, route, and duration for a documented or suspected infection.\n3. Diagnostic testing can support targeted therapy and reduce unnecessary broad-spectrum treatment.\n4. Infection prevention, vaccination, environmental hygiene, and surveillance complement antibiotic stewardship.\nRelated corpus topic: Community-acquired pneumonia.\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "score": {
+        "grounding": 31.5,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 14.5,
+        "non_repetition": 10.0,
+        "total": 86.0,
+        "words": 102
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "self_consistency_5",
+      "query": "Why does antimicrobial stewardship reduce the spread of antimicrobial resistance?",
+      "answer": "Overview: Antimicrobial resistance occurs when microorganisms change or acquire mechanisms that reduce the effectiveness of medicines used against them. Resistance makes infections harder to treat and can increase illness, mortality, and healthcare costs.\n1. Selective pressure from antimicrobial exposure can favor survival of resistant organisms.\n2. Diagnostic testing can support targeted therapy and reduce unnecessary broad-spectrum treatment.\n3. Stewardship promotes the right drug, dose, route, and duration for a documented or suspected infection.\n4. Infection prevention, vaccination, environmental hygiene, and surveillance complement antibiotic stewardship.\nRelated corpus topic: Community-acquired pneumonia.\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "score": {
+        "grounding": 31.5,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 14.5,
+        "non_repetition": 10.0,
+        "total": 86.0,
+        "words": 102
+      },
+      "vote_counts": {
+        "acquire|acquired|advice|antimicrobial|infection|mechanisms|resistance|stewardship": 1,
+        "acquire|acquired|advice|antimicrobial|infection|reduce|resistance|stewardship": 3,
+        "acquire|acquired|advice|against|antimicrobial|mechanisms|reduce|resistance": 1
+      },
+      "majority_size": 3,
+      "agreement": 0.6,
+      "backend": "offline"
+    },
+    {
+      "strategy": "ape",
+      "query": "Why does antimicrobial stewardship reduce the spread of antimicrobial resistance?",
+      "answer": "1. Definition: Antimicrobial resistance occurs when microorganisms change or acquire mechanisms that reduce the effectiveness of medicines used against them. Resistance makes infections harder to treat and can increase illness, mortality, and healthcare costs.\n2. Why it matters: Selective pressure from antimicrobial exposure can favor survival of resistant organisms.\n3. What to monitor: Stewardship promotes the right drug, dose, route, and duration for a documented or suspected infection.\n4. Educational summary of published medical literature. Not patient-specific clinical advice.\n1. Selective pressure from antimicrobial exposure can favor survival of resistant organisms.\n2. Stewardship promotes the right drug, dose, route, and duration for a documented or suspected infection.\n3. Diagnostic testing can support targeted therapy and reduce unnecessary broad-spectrum treatment.\n4. Infection prevention, vaccination, environmental hygiene, and surveillance complement antibiotic stewardship.",
+      "score": {
+        "grounding": 31.5,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 15.0,
+        "non_repetition": 10.0,
+        "total": 86.5,
+        "words": 132
+      },
+      "selected_prompt": "You are a careful medical-literature assistant. You answer from the supplied domain corpus, you state uncertainty explicitly, and you never give patient-specific clinical advice.\n\nAnswer using only corpus-supported statements and name the source topic.\n\nQuestion: Why does antimicrobial stewardship reduce the spread of antimicrobial resistance?\nAnswer:",
+      "variants_tried": 5,
+      "variant_scores": [
+        86.5,
+        53.75,
+        47.86,
+        78.75,
+        47.86
+      ],
+      "raw_proposals": "1. Answer using only corpus-supported statements and name the source topic.\n2. Give a numbered answer: definition, two governing considerations, one caution.\n3. Explain the mechanism first, then the practical implication, then the limitation.\n4. Write a study note: 1. Define. 2. Why it matters. 3. What to monitor. 4. Educational caveat.\n5. Answer concisely but completely, stating the uncertainty that remains.",
+      "backend": "offline"
+    },
+    {
+      "strategy": "zero_shot",
+      "query": "What does glycated haemoglobin measure in type 2 diabetes, and how should it guide management?",
+      "answer": "Type 2 diabetes is a chronic metabolic disorder in which insulin resistance and progressive impairment of beta-cell function lead to elevated blood glucose. Glycated hemoglobin reflects average glycemia over approximately the preceding two to three months.",
+      "score": {
+        "grounding": 15.75,
+        "structure": 0.0,
+        "completeness": 16.44,
+        "specificity": 2.0,
+        "non_repetition": 10.0,
+        "total": 44.19,
+        "words": 37
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "few_shot_3",
+      "query": "What does glycated haemoglobin measure in type 2 diabetes, and how should it guide management?",
+      "answer": "Type 2 diabetes is a chronic metabolic disorder in which insulin resistance and progressive impairment of beta-cell function lead to elevated blood glucose. Management combines education, lifestyle measures, monitoring, and medicines when indicated. Glycated hemoglobin reflects average glycemia over approximately the preceding two to three months. Nutrition, physical activity, sleep, and weight management can improve metabolic health.",
+      "score": {
+        "grounding": 21.0,
+        "structure": 0.0,
+        "completeness": 20.0,
+        "specificity": 3.5,
+        "non_repetition": 10.0,
+        "total": 54.5,
+        "words": 58
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "instruction",
+      "query": "What does glycated haemoglobin measure in type 2 diabetes, and how should it guide management?",
+      "answer": "Overview: Type 2 diabetes is a chronic metabolic disorder in which insulin resistance and progressive impairment of beta-cell function lead to elevated blood glucose. Management combines education, lifestyle measures, monitoring, and medicines when indicated.\n1. Glycated hemoglobin reflects average glycemia over approximately the preceding two to three months.\n2. Nutrition, physical activity, sleep, and weight management can improve metabolic health.\n3. Treatment plans should account for kidney function, cardiovascular disease, hypoglycemia risk, cost, and patient goals.\n4. Regular assessment includes eyes, feet, kidneys, blood pressure, lipids, and vaccination status.\nRelated corpus topic: Chronic kidney disease and renal function.\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "score": {
+        "grounding": 29.75,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 11.5,
+        "non_repetition": 10.0,
+        "total": 81.25,
+        "words": 110
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "self_consistency_5",
+      "query": "What does glycated haemoglobin measure in type 2 diabetes, and how should it guide management?",
+      "answer": "Overview: Type 2 diabetes is a chronic metabolic disorder in which insulin resistance and progressive impairment of beta-cell function lead to elevated blood glucose. Management combines education, lifestyle measures, monitoring, and medicines when indicated.\n1. Nutrition, physical activity, sleep, and weight management can improve metabolic health.\n2. Hypoglycemia is a clinically important adverse effect of some glucose-lowering therapies and requires patient education.\n3. Treatment plans should account for kidney function, cardiovascular disease, hypoglycemia risk, cost, and patient goals.\n4. Glycated hemoglobin reflects average glycemia over approximately the preceding two to three months.\nRelated corpus topic: Chronic kidney disease and renal function.\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "score": {
+        "grounding": 33.25,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 11.5,
+        "non_repetition": 10.0,
+        "total": 84.75,
+        "words": 114
+      },
+      "vote_counts": {
+        "blood|chronic|disease|function|kidney|management|metabolic|patient": 1,
+        "chronic|disease|education|function|glucose|hypoglycemia|kidney|patient": 2,
+        "blood|chronic|education|function|glucose|management|metabolic|patient": 2
+      },
+      "majority_size": 2,
+      "agreement": 0.4,
+      "backend": "offline"
+    },
+    {
+      "strategy": "ape",
+      "query": "What does glycated haemoglobin measure in type 2 diabetes, and how should it guide management?",
+      "answer": "1. Definition: Type 2 diabetes is a chronic metabolic disorder in which insulin resistance and progressive impairment of beta-cell function lead to elevated blood glucose. Management combines education, lifestyle measures, monitoring, and medicines when indicated.\n2. Why it matters: Glycated hemoglobin reflects average glycemia over approximately the preceding two to three months.\n3. What to monitor: Nutrition, physical activity, sleep, and weight management can improve metabolic health.\n4. Educational summary of published medical literature. Not patient-specific clinical advice.\n1. Glycated hemoglobin reflects average glycemia over approximately the preceding two to three months.\n2. Nutrition, physical activity, sleep, and weight management can improve metabolic health.\n3. Treatment plans should account for kidney function, cardiovascular disease, hypoglycemia risk, cost, and patient goals.\n4. Regular assessment includes eyes, feet, kidneys, blood pressure, lipids, and vaccination status.",
+      "score": {
+        "grounding": 29.75,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 15.0,
+        "non_repetition": 10.0,
+        "total": 84.75,
+        "words": 135
+      },
+      "selected_prompt": "You are a careful medical-literature assistant. You answer from the supplied domain corpus, you state uncertainty explicitly, and you never give patient-specific clinical advice.\n\nAnswer using only corpus-supported statements and name the source topic.\n\nQuestion: What does glycated haemoglobin measure in type 2 diabetes, and how should it guide management?\nAnswer:",
+      "variants_tried": 5,
+      "variant_scores": [
+        84.75,
+        56.5,
+        51.25,
+        77.5,
+        51.25
+      ],
+      "raw_proposals": "1. Answer using only corpus-supported statements and name the source topic.\n2. Give a numbered answer: definition, two governing considerations, one caution.\n3. Explain the mechanism first, then the practical implication, then the limitation.\n4. Write a study note: 1. Define. 2. Why it matters. 3. What to monitor. 4. Educational caveat.\n5. Answer concisely but completely, stating the uncertainty that remains.",
+      "backend": "offline"
+    },
+    {
+      "strategy": "zero_shot",
+      "query": "Why does intention-to-treat analysis preserve the benefit of randomisation in a clinical trial?",
+      "answer": "A clinical trial prospectively evaluates an intervention in human participants using a predefined protocol. The research question, eligibility criteria, outcomes, sample size, and analysis plan should be specified before enrollment.",
+      "score": {
+        "grounding": 8.75,
+        "structure": 0.0,
+        "completeness": 13.33,
+        "specificity": 1.5,
+        "non_repetition": 10.0,
+        "total": 33.58,
+        "words": 30
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "few_shot_3",
+      "query": "Why does intention-to-treat analysis preserve the benefit of randomisation in a clinical trial?",
+      "answer": "A clinical trial prospectively evaluates an intervention in human participants using a predefined protocol. Randomization, allocation concealment, blinding when feasible, and complete follow-up can reduce bias. The research question, eligibility criteria, outcomes, sample size, and analysis plan should be specified before enrollment. Randomization balances measured and unmeasured prognostic factors on average between study groups.",
+      "score": {
+        "grounding": 22.75,
+        "structure": 0.0,
+        "completeness": 20.0,
+        "specificity": 3.0,
+        "non_repetition": 10.0,
+        "total": 55.75,
+        "words": 55
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "instruction",
+      "query": "Why does intention-to-treat analysis preserve the benefit of randomisation in a clinical trial?",
+      "answer": "Overview: A clinical trial prospectively evaluates an intervention in human participants using a predefined protocol. Randomization, allocation concealment, blinding when feasible, and complete follow-up can reduce bias.\n1. The research question, eligibility criteria, outcomes, sample size, and analysis plan should be specified before enrollment.\n2. Randomization balances measured and unmeasured prognostic factors on average between study groups.\n3. Intention-to-treat analysis preserves the benefits of the original randomized comparison.\n4. Absolute risk reduction and number needed to treat provide clinically interpretable measures of effect.\nRelated corpus topic: Antimicrobial resistance.\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "score": {
+        "grounding": 31.5,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 11.0,
+        "non_repetition": 10.0,
+        "total": 82.5,
+        "words": 102
+      },
+      "backend": "offline"
+    },
+    {
+      "strategy": "self_consistency_5",
+      "query": "Why does intention-to-treat analysis preserve the benefit of randomisation in a clinical trial?",
+      "answer": "Overview: A clinical trial prospectively evaluates an intervention in human participants using a predefined protocol. Randomization, allocation concealment, blinding when feasible, and complete follow-up can reduce bias.\n1. Absolute risk reduction and number needed to treat provide clinically interpretable measures of effect.\n2. External validity asks whether findings can reasonably be applied to patients outside the study population.\n3. The research question, eligibility criteria, outcomes, sample size, and analysis plan should be specified before enrollment.\n4. Intention-to-treat analysis preserves the benefits of the original randomized comparison.\nRelated corpus topic: Antimicrobial resistance.\nEducational summary of published medical literature. Not patient-specific clinical advice.",
+      "score": {
+        "grounding": 29.75,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 12.5,
+        "non_repetition": 10.0,
+        "total": 82.25,
+        "words": 105
+      },
+      "vote_counts": {
+        "absolute|advice|allocation|analysis|antimicrobial|applied|clinical|treat": 2,
+        "absolute|advice|allocation|analysis|clinical|randomization|study|treat": 1,
+        "advice|allocation|analysis|antimicrobial|applied|clinical|randomization|study": 1,
+        "absolute|advice|allocation|analysis|antimicrobial|clinical|randomization|study": 1
+      },
+      "majority_size": 2,
+      "agreement": 0.4,
+      "backend": "offline"
+    },
+    {
+      "strategy": "ape",
+      "query": "Why does intention-to-treat analysis preserve the benefit of randomisation in a clinical trial?",
+      "answer": "1. Definition: A clinical trial prospectively evaluates an intervention in human participants using a predefined protocol. Randomization, allocation concealment, blinding when feasible, and complete follow-up can reduce bias.\n2. Why it matters: The research question, eligibility criteria, outcomes, sample size, and analysis plan should be specified before enrollment.\n3. What to monitor: Randomization balances measured and unmeasured prognostic factors on average between study groups.\n4. Educational summary of published medical literature. Not patient-specific clinical advice.\n1. The research question, eligibility criteria, outcomes, sample size, and analysis plan should be specified before enrollment.\n2. Randomization balances measured and unmeasured prognostic factors on average between study groups.\n3. Intention-to-treat analysis preserves the benefits of the original randomized comparison.\n4. Absolute risk reduction and number needed to treat provide clinically interpretable measures of effect.",
+      "score": {
+        "grounding": 31.5,
+        "structure": 10.0,
+        "completeness": 20.0,
+        "specificity": 15.0,
+        "non_repetition": 10.0,
+        "total": 86.5,
+        "words": 135
+      },
+      "selected_prompt": "You are a careful medical-literature assistant. You answer from the supplied domain corpus, you state uncertainty explicitly, and you never give patient-specific clinical advice.\n\nAnswer using only corpus-supported statements and name the source topic.\n\nQuestion: Why does intention-to-treat analysis preserve the benefit of randomisation in a clinical trial?\nAnswer:",
+      "variants_tried": 5,
+      "variant_scores": [
+        86.5,
+        55.5,
+        49.61,
+        75.25,
+        49.61
+      ],
+      "raw_proposals": "1. Answer using only corpus-supported statements and name the source topic.\n2. Give a numbered answer: definition, two governing considerations, one caution.\n3. Explain the mechanism first, then the practical implication, then the limitation.\n4. Write a study note: 1. Define. 2. Why it matters. 3. What to monitor. 4. Educational caveat.\n5. Answer concisely but completely, stating the uncertainty that remains.",
+      "backend": "offline"
+    }
+  ],
+  "a1_summary": [
+    {
+      "strategy": "ape",
+      "queries": 5,
+      "mean_total": 85.45,
+      "mean_grounding": 30.45,
+      "mean_structure": 10.0,
+      "mean_words": 137.8
+    },
+    {
+      "strategy": "self_consistency_5",
+      "queries": 5,
+      "mean_total": 85.1,
+      "mean_grounding": 32.2,
+      "mean_structure": 10.0,
+      "mean_words": 111.0
+    },
+    {
+      "strategy": "instruction",
+      "queries": 5,
+      "mean_total": 83.05,
+      "mean_grounding": 30.45,
+      "mean_structure": 10.0,
+      "mean_words": 108.6
+    },
+    {
+      "strategy": "few_shot_3",
+      "queries": 5,
+      "mean_total": 56.25,
+      "mean_grounding": 21.35,
+      "mean_structure": 0.0,
+      "mean_words": 58.6
+    },
+    {
+      "strategy": "zero_shot",
+      "queries": 5,
+      "mean_total": 34.96,
+      "mean_grounding": 10.85,
+      "mean_structure": 0.0,
+      "mean_words": 28.6
+    }
+  ],
+  "a2_chain": {
+    "query": "Using the corpus, explain how a clinician should combine diagnostic test performance and evidence quality when deciding whether to start antibiotics for a suspected community-acquired pneumonia.",
+    "context_chars": 2377,
+    "step1_facts": "Relevant facts from Community-acquired pneumonia:\n- Fever, cough, sputum production, dyspnea, pleuritic chest pain, and abnormal lung findings may occur.\n- Severity assessment helps determine whether outpatient care, hospital admission, or critical care is appropriate.\n- Antibiotic selection should consider likely pathogens, local resistance patterns, allergies, comorbidities, and recent antibiotic exposure.\n- Supporting definition: Community-acquired pneumonia is an acute infection of the lung acquired outside a hospital or long-term care setting. Evaluation combines symptoms, examination, imaging when appropriate, and assessment of illness severity.",
+    "chained_answer": "Synthesis: Community-acquired pneumonia is an acute infection of the lung acquired outside a hospital or long-term care setting. Evaluation combines symptoms, examination, imaging when appropriate, and assessment of illness severity.\n1. Fever, cough, sputum production, dyspnea, pleuritic chest pain, and abnormal lung findings may occur.\n2. Severity assessment helps determine whether outpatient care, hospital admission, or critical care is appropriate.\n3. Cross-topic link to clinical trials and intervention evidence: The research question, eligibility criteria, outcomes, sample size, and analysis plan should be specified before enrollment.\nConclusion: the decision depends on the measured values and the patient context. Educational summary of published medical literature. Not patient-specific clinical advice.",
+    "chained_score": {
+      "grounding": 22.75,
+      "structure": 20.0,
+      "completeness": 20.0,
+      "specificity": 10.5,
+      "non_repetition": 10.0,
+      "total": 83.25,
+      "words": 111
+    },
+    "single_step_answer": "Community-acquired pneumonia is an acute infection of the lung acquired outside a hospital or long-term care setting. Fever, cough, sputum production, dyspnea, pleuritic chest pain, and abnormal lung findings may occur.",
+    "single_step_score": {
+      "grounding": 12.25,
+      "structure": 0.0,
+      "completeness": 14.67,
+      "specificity": 1.5,
+      "non_repetition": 10.0,
+      "total": 38.42,
+      "words": 33
+    }
+  },
+  "a2_function_call": {
+    "query": "Extract one clinical fact about diagnostic test performance.",
+    "schema": "extract_clinical_fact",
+    "parsed": {
+      "entity": "Diagnostic test performance",
+      "value": "Diagnostic test evaluation describes how test results relate to a reference standard or clinical outcome",
+      "unit": "none",
+      "source_clause": "Sensitivity is the proportion of people with the target condition who test positive.",
+      "confidence": 0.72
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "raw": "{\"entity\": \"Diagnostic test performance\", \"value\": \"Diagnostic test evaluation describes how test results relate to a reference standard or clinical outcome\", \"unit\": \"none\", \"source_clause\": \"Sensitivity is the proportion of people with the target condition who test positive.\", \"confidence\": 0.72}",
+        "valid": true
+      }
+    ],
+    "valid": true
+  }
+}
