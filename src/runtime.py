@@ -104,7 +104,16 @@ def detect_runtime() -> dict:
         return base
     mps = getattr(torch.backends, "mps", None)
     if mps is not None and mps.is_available():
-        base.update({"device": "mps", "dtype": "float32", "mps": True, "gpu_name": "mps"})
+        # Unified memory: report host RAM as the GPU budget. fp16 on M-series
+        # is typically stable and halves the 1.5B footprint vs fp32.
+        base.update({
+            "device": "mps",
+            "dtype": "float16",
+            "mps": True,
+            "gpu_name": "Apple MPS",
+            "gpu_total_gb": cpu_total,
+            "gpu_free_gb": cpu_avail,
+        })
         return base
     return base
 
@@ -136,6 +145,12 @@ def memory_snapshot(tag: str = "") -> dict:
                 "gpu_free_gb": round(free_b / 1024**3, 2),
                 "gpu_total_gb": round(total_b / 1024**3, 2),
             })
+        elif getattr(torch.backends, "mps", None) is not None and torch.backends.mps.is_available():
+            allocated = torch.mps.current_allocated_memory()
+            snap.update({
+                "gpu_allocated_gb": round(allocated / 1024**3, 2),
+                "gpu_name": "Apple MPS",
+            })
     except ImportError:
         pass
     print(snap)
@@ -158,6 +173,8 @@ def release_model_memory(*objects) -> None:
             torch.cuda.ipc_collect()
             gc.collect()
             torch.cuda.empty_cache()
+        elif getattr(torch.backends, "mps", None) is not None and torch.backends.mps.is_available():
+            torch.mps.empty_cache()
     except ImportError:
         pass
 
@@ -232,13 +249,19 @@ def _cpu_like_budget(runtime: dict, *, tier: str) -> dict:
     if tier == "mps":
         seq = 512 if ram >= 16.0 else 256
         cpt_steps, sft_steps = (16, 8) if can_load else (0, 0)
+        dpo_steps = 20 if can_load else 0
+        a2_sc, a2_ape, a2_react, a2_tokens = 3, 3, 3, 128
         reason = (
-            f"Apple MPS ({ram:.1f} GB unified): LoRA CPT, seq {seq}, "
-            f"{cpt_steps} CPT steps / {sft_steps} SFT steps, fp32, no 4-bit"
+            f"Apple MPS ({ram:.1f} GB unified): LoRA CPT seq {seq}, "
+            f"{cpt_steps} CPT / {sft_steps} SFT / {dpo_steps} DPO steps, "
+            "fp16, no 4-bit. Assignment 2 uses 3-sample self-consistency "
+            "and 3 APE variants so a local run stays near an hour."
         )
     else:
         seq = 128 if 0.0 < ram < 12.0 else 256
         cpt_steps, sft_steps = (8, 6) if can_load else (0, 0)
+        dpo_steps = 8 if can_load else 0
+        a2_sc, a2_ape, a2_react, a2_tokens = 3, 3, 3, 80
         reason = (
             f"CPU ({ram:.1f} GB RAM): LoRA CPT so AdamW fits, seq {seq}, "
             f"{cpt_steps} CPT steps / {sft_steps} SFT steps, fp32, no 4-bit "
@@ -258,6 +281,11 @@ def _cpu_like_budget(runtime: dict, *, tier: str) -> dict:
         "cpt_max_steps": cpt_steps,
         "sft_max_steps": sft_steps,
         "dpo_epochs": 1,
+        "dpo_max_steps": dpo_steps,
+        "a2_self_consistency_samples": a2_sc,
+        "a2_ape_variants": a2_ape,
+        "a2_react_cycles": a2_react,
+        "a2_max_new_tokens": a2_tokens,
         "four_bit": False,
         "eight_bit_adam": False,
         "lora_cpt": bool(cpt_steps),
@@ -266,6 +294,8 @@ def _cpu_like_budget(runtime: dict, *, tier: str) -> dict:
         "lora_cpt_targets": ("q_proj", "v_proj"),
         "sequence_length": seq,
         "sft_max_length": min(256, seq),
+        "dpo_max_length": min(256, seq),
+        "dpo_max_prompt_length": min(128, seq // 2 or 64),
         "max_new_tokens": 24,
         "warmup_ratio": 0.1,
         "logging_steps": 1,
@@ -326,6 +356,13 @@ def training_budget(runtime: dict | None = None) -> dict:
         "cpt_max_steps": cpt_cap,
         "sft_max_steps": sft_steps,
         "dpo_epochs": 3,
+        "dpo_max_steps": 0,
+        "dpo_max_length": 768,
+        "dpo_max_prompt_length": 256,
+        "a2_self_consistency_samples": 5,
+        "a2_ape_variants": 5,
+        "a2_react_cycles": 5,
+        "a2_max_new_tokens": 200,
         "four_bit": True,
         "eight_bit_adam": eight_bit,
         "lora_cpt": False,
@@ -416,7 +453,7 @@ def load_causal_lm(
     """Load one causal LM onto the active device.
 
     CUDA: map straight onto ``cuda:0`` (never park 1.5B weights in host RAM first).
-    CPU/MPS: fp32 in host/unified memory. 4-bit is CUDA-only (bitsandbytes).
+    MPS: fp16 in unified memory. CPU: fp32. 4-bit is CUDA-only (bitsandbytes).
     """
     import torch
     from transformers import AutoModelForCausalLM
@@ -426,10 +463,13 @@ def load_causal_lm(
     budget = training_budget(runtime)
     use_4bit = bool(four_bit and runtime.get("cuda") and budget.get("four_bit", True))
     if four_bit and not use_4bit:
-        print("4-bit load requested but this runtime has no CUDA; loading fp32 instead.")
+        kind = "fp16 on MPS" if runtime.get("mps") else "fp32 on CPU"
+        print(f"4-bit load requested but this runtime has no CUDA; loading {kind} instead.")
 
     if runtime.get("cuda"):
         dtype = torch.bfloat16 if runtime.get("dtype") == "bfloat16" else torch.float16
+    elif runtime.get("mps"):
+        dtype = torch.float16 if runtime.get("dtype") == "float16" else torch.float32
     else:
         dtype = torch.float32
     kwargs = {

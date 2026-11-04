@@ -101,7 +101,7 @@ def run_instruction(lm, query: str) -> dict:
 
 
 def run_self_consistency(lm, query: str, samples: int = 5, temperature: float = 0.7) -> dict:
-    """Sample the same prompt 5x and keep the majority-vote answer."""
+    """Sample the same prompt N times and keep the majority-vote answer."""
     prompt = instruction_prompt(query)
     candidates = lm.generate(prompt, max_new_tokens=MAX_NEW_TOKENS, temperature=temperature, n=samples)
     signatures = [answer_signature(c) for c in candidates]
@@ -169,10 +169,15 @@ STRATEGIES = {
 }
 
 
-def run_all_strategies(lm, queries) -> list[dict]:
+def run_all_strategies(lm, queries, *, sc_samples: int = 5, ape_variants: int = 5) -> list[dict]:
+    """Run every Part A1 strategy. MPS/CPU pass smaller ``sc_samples`` / ``ape_variants``."""
+    runners = dict(STRATEGIES)
+    runners["self_consistency_5"] = lambda model, query: run_self_consistency(
+        model, query, samples=sc_samples)
+    runners["ape"] = lambda model, query: run_ape(model, query, num_variants=ape_variants)
     rows = []
     for query in queries:
-        for name, runner in STRATEGIES.items():
+        for name, runner in runners.items():
             result = runner(lm, query)
             result["backend"] = lm.backend
             rows.append(result)

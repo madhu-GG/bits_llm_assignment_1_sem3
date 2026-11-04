@@ -347,11 +347,30 @@ def _truncate_words(text: str, max_new_tokens: int) -> str:
     return "\n".join(kept) if kept else text
 
 
+def choose_generation_backend(adapter_path=None, runtime=None) -> str:
+    """Use the Assignment 1 adapter on CUDA or Apple MPS; otherwise offline.
+
+    Loading 1.5B for hundreds of generations on CPU would make Run all last
+    many hours. CUDA (Colab T4) and MPS (local M-series GPU) both run the
+    real adapter when Assignment 1 has written it.
+    """
+    try:
+        from runtime import detect_runtime
+    except ImportError:  # notebook may have only src/ on the path
+        from src.runtime import detect_runtime
+    runtime = runtime or detect_runtime()
+    path = Path(adapter_path) if adapter_path else None
+    accelerator = bool(runtime.get("cuda") or runtime.get("mps"))
+    if accelerator and path is not None and path.exists():
+        return "adapter"
+    return "offline"
+
+
 class DomainLM:
     """Uniform generation interface over the Assignment 1 adapter or the offline backend."""
 
     def __init__(self, base_model_id="microsoft/biogpt-large", adapter_path=None,
-                 backend="offline", seed=7, max_seq_length=1024, label=None, aligned=False):
+                 backend="offline", seed=7, max_seq_length=None, label=None, aligned=False):
         self.base_model_id = base_model_id
         self.adapter_path = str(adapter_path) if adapter_path else None
         self.backend = backend
@@ -367,23 +386,43 @@ class DomainLM:
 
     def _load_adapter(self):
         import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+        from transformers import AutoTokenizer
+        try:
+            from runtime import detect_runtime, load_causal_lm, training_budget
+        except ImportError:
+            from src.runtime import detect_runtime, load_causal_lm, training_budget
 
-        source = self.base_model_id
-        quant = BitsAndBytesConfig(
-            load_in_4bit=True, bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.float16, bnb_4bit_use_double_quant=True,
+        runtime = detect_runtime()
+        budget = training_budget(runtime)
+        if self.max_seq_length is None:
+            self.max_seq_length = int(budget.get("sequence_length") or 1024)
+        four_bit = bool(runtime.get("cuda") and budget.get("four_bit"))
+        model = load_causal_lm(
+            self.base_model_id,
+            four_bit=four_bit,
+            gradient_checkpointing=False,
+            runtime=runtime,
         )
-        model = AutoModelForCausalLM.from_pretrained(source, quantization_config=quant, device_map="auto")
         if self.adapter_path:
             from peft import PeftModel
             model = PeftModel.from_pretrained(model, self.adapter_path)
         model.eval()
-        tokenizer = AutoTokenizer.from_pretrained(self.adapter_path or source)
+        tok_src = self.adapter_path if self.adapter_path and Path(self.adapter_path, "tokenizer_config.json").exists() else self.base_model_id
+        tokenizer = AutoTokenizer.from_pretrained(tok_src)
         if tokenizer.pad_token_id is None:
             tokenizer.pad_token = tokenizer.eos_token
         self._model, self._tokenizer = model, tokenizer
         torch.manual_seed(self.seed)
+
+    def close(self) -> None:
+        """Drop the loaded adapter. Do not hold SFT and DPO in memory together on a T4."""
+        try:
+            from runtime import release_model_memory
+        except ImportError:
+            from src.runtime import release_model_memory
+        release_model_memory(self._model, self._tokenizer)
+        self._model = None
+        self._tokenizer = None
 
     def generate(self, prompt: str, max_new_tokens: int = 200, temperature: float = 0.0,
                  n: int = 1, top_p: float = 0.9) -> list[str]:
@@ -393,8 +432,10 @@ class DomainLM:
 
         import torch
         tokenizer, model = self._tokenizer, self._model
-        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=self.max_seq_length)
-        inputs = {k: v.to(model.device) for k, v in inputs.items()}
+        seq = self.max_seq_length or 1024
+        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=seq)
+        device = next(model.parameters()).device
+        inputs = {k: v.to(device) for k, v in inputs.items()}
         do_sample = temperature > 0
         outputs = []
         for _ in range(n):
