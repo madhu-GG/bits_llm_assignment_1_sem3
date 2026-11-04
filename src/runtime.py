@@ -553,7 +553,10 @@ def trainer_memory_kwargs(runtime: dict | None = None, budget: dict | None = Non
         "optim": budget.get("optim") or (
             "adamw_bnb_8bit" if budget.get("eight_bit_adam") else "adamw_torch"
         ),
-        "warmup_ratio": budget.get("warmup_ratio", 0.1),
+        # TRL's SFTConfig rejects warmup_ratio. warmup_steps is valid on both
+        # TrainingArguments and SFTConfig. Callers overwrite this once max_steps
+        # is known: int(max_steps * budget["warmup_ratio"]).
+        "warmup_steps": 1,
         "lr_scheduler_type": "linear",
         "max_grad_norm": 1.0,
     }
