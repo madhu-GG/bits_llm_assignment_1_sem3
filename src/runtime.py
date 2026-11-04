@@ -189,21 +189,33 @@ def seed_everything(seed: int = 42) -> None:
         pass
 
 
+def gpu_tier(runtime: dict | None = None) -> str:
+    """Classify the accelerator. Do not use free-VRAM at detect time — that
+    shrinks after the baseline load and would mis-label an A100 as a T4.
+    """
+    runtime = runtime or detect_runtime()
+    if not runtime.get("cuda"):
+        return "cpu"
+    name = (runtime.get("gpu_name") or "").lower()
+    total = float(runtime.get("gpu_total_gb") or 0)
+    if any(tag in name for tag in ("a100", "h100", "h200", "l40", "b200")) or total >= 32:
+        return "large"
+    if "t4" in name or total <= 16.5:
+        return "t4"
+    return "mid"
+
+
 def training_budget(runtime: dict | None = None) -> dict:
     """Batch size, accumulation, and CPT length for the detected machine.
 
-    The student Colab box is ~15 GB GPU + ~15 GB CPU, so this always treats a
-    ≤16 GB GPU as a tight T4: 8-bit Adam for CPT, 4-bit QLoRA for SFT, one
-    sequence per step. Five optimiser steps is not CPT; the notebook asks for
-    about one packed epoch (a few hundred steps) and caps it so the session
-    still finishes.
+    T4 (~15 GB) measured ~57 s/optimiser step on this 1.5B checkpoint with
+    gradient checkpointing and 8-bit Adam. 300 steps would be ~4.7 hours.
+    Faster lab GPUs ran 100 steps in ~2 minutes, so they can do a packed epoch.
     """
     runtime = runtime or detect_runtime()
-    gpu_total = float(runtime.get("gpu_total_gb") or 0)
-    gpu_free = float(runtime.get("gpu_free_gb") or 0)
-    cpu_total = float(runtime.get("cpu_total_gb") or 0)
     if not runtime.get("cuda"):
         return {
+            "gpu_tier": "cpu",
             "per_device_train_batch_size": 1,
             "gradient_accumulation_steps": 8,
             "cpt_max_steps": 0,
@@ -218,42 +230,67 @@ def training_budget(runtime: dict | None = None) -> dict:
             "reason": "no GPU — data prep still runs; training is skipped",
         }
 
-    tight = gpu_total <= 16.5 or gpu_free < 12 or (cpu_total and cpu_total <= 16.5)
-    gpu_cap = GPU_BUDGET_GIB if tight else "20GiB"
-    cpu_cap = CPU_OFFLOAD_GIB if tight else "8GiB"
+    tier = gpu_tier(runtime)
+    gpu_total = float(runtime.get("gpu_total_gb") or 0)
+    if tier == "t4":
+        # ~60 steps ≈ 1 hour on the measured Colab T4. 8-bit Adam is required
+        # so optimiser states fit next to bf16 weights.
+        gpu_cap, cpu_cap = GPU_BUDGET_GIB, CPU_OFFLOAD_GIB
+        cpt_cap, sft_steps = 60, 40
+        eight_bit = True
+        reason = (
+            "T4 (~15 GB): 60 CPT steps (~1 h at ~57 s/step), 8-bit Adam, "
+            "4-bit QLoRA, load straight to GPU"
+        )
+    elif tier == "mid":
+        gpu_cap = f"{max(12, int(gpu_total) - 4)}GiB"
+        cpu_cap = "8GiB"
+        cpt_cap, sft_steps = 150, 60
+        eight_bit = True
+        reason = (
+            "Mid-size GPU: 150 CPT steps, 8-bit Adam, 4-bit QLoRA, "
+            "load straight to GPU"
+        )
+    else:
+        gpu_cap = f"{max(20, int(gpu_total) - 5)}GiB"
+        cpu_cap = "16GiB"
+        cpt_cap, sft_steps = 400, 80
+        eight_bit = False
+        reason = (
+            "Large GPU (A100/L40S-class): one packed epoch of CPT, "
+            "full AdamW, 4-bit QLoRA for SFT"
+        )
+
     return {
+        "gpu_tier": tier,
         "per_device_train_batch_size": 1,
         "gradient_accumulation_steps": 8,
-        "cpt_max_steps": 300 if tight else 400,
-        "sft_max_steps": 60 if tight else 80,
+        "cpt_max_steps": cpt_cap,
+        "sft_max_steps": sft_steps,
         "dpo_epochs": 3,
         "four_bit": True,
-        "eight_bit_adam": True,
+        "eight_bit_adam": eight_bit,
         "sequence_length": 1024,
         "max_new_tokens": 40,
         "warmup_ratio": 0.1,
         "max_memory": {0: gpu_cap, "cpu": cpu_cap},
-        "reason": (
-            "Colab T4-class box (~15 GB GPU / ~15 GB RAM): 8-bit Adam, "
-            "4-bit QLoRA, load straight to GPU, one model at a time"
-            if tight else "larger GPU — same pipeline, slightly longer CPT"
-        ),
+        "reason": reason,
     }
 
 
 def cpt_steps_for_dataset(n_sequences: int, budget: dict | None = None) -> int:
-    """About one epoch over the packed corpus, bounded for a T4 session.
+    """Packed-epoch length, then cap it for the GPU tier.
 
-    5 steps cannot move domain perplexity. 100 steps on this 11 MB corpus
-    dropped PPL by ~40%. One packed epoch is a few hundred optimiser steps.
+    T4 is capped in ``training_budget`` (~60 steps). Large GPUs keep up to
+    one packed epoch. 5 steps cannot move domain perplexity.
     """
     budget = budget or training_budget()
-    if int(budget.get("cpt_max_steps") or 0) <= 0:
+    cap = int(budget.get("cpt_max_steps") or 0)
+    if cap <= 0:
         return 0
     batch = int(budget["per_device_train_batch_size"]) * int(budget["gradient_accumulation_steps"])
     one_epoch = max(1, (int(n_sequences) + batch - 1) // max(batch, 1))
-    cap = int(budget["cpt_max_steps"])
-    return min(cap, max(200, one_epoch))
+    return min(cap, one_epoch)
 
 
 def resolve_lora_targets(model, requested: list[str]) -> list[str]:

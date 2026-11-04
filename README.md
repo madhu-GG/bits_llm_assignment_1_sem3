@@ -26,7 +26,7 @@ Colab's **Open notebook from GitHub** copies only the `.ipynb`, not `src/`. The 
 
 If the GitHub repo is **private**, add a Colab secret named `GITHUB_TOKEN` (Settings → Secrets). Do not paste a token into the notebook. If the repo is public, no token is needed.
 
-The first cell installs packages. CPT is about **200–300 optimiser steps** (one packed epoch, capped for the T4), not 5. Expect 15–30 minutes for CPT, then three short QLoRA runs. Only one model is in memory at a time.
+The first cells clone the repo (if needed) and install packages. CPT length follows the GPU: about **60 steps (~1 hour)** on a Colab T4, or about **one packed epoch** on A100/L40S. Only one model is in memory at a time.
 
 If the runtime has no GPU, extraction, cleaning, packing, and the instruction JSONL still run; training is skipped automatically.
 
