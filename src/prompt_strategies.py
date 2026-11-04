@@ -6,7 +6,6 @@ import json
 import re
 from collections import Counter
 
-import a2_paths  # noqa: F401
 from answer_scoring import answer_signature, best_of, score_answer
 from assignment2_queries import (
     CLINICAL_FACT_SCHEMA,

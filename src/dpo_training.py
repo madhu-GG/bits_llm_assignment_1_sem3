@@ -7,7 +7,6 @@ import json
 import statistics
 from pathlib import Path
 
-import a2_paths  # noqa: F401  (bootstraps sys.path for Assignment 1 modules)
 from a2_paths import DPO_ADAPTER_DIR, base_model_source, sft_adapter_path
 from answer_scoring import score_answer
 from assignment2_queries import HELD_OUT_QUERIES
@@ -69,7 +68,15 @@ def train_dpo(preference_path, sft_adapter="adapter_B", output_dir=DPO_ADAPTER_D
 
     quant = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
                                bnb_4bit_compute_dtype=torch.float16, bnb_4bit_use_double_quant=True)
-    base = AutoModelForCausalLM.from_pretrained(source, quantization_config=quant, device_map="auto")
+    # Load onto the GPU directly. device_map="auto" can spill the 1.5B
+    # checkpoint into the 15 GB Colab system RAM and OOM the process.
+    base = AutoModelForCausalLM.from_pretrained(
+        source,
+        quantization_config=quant,
+        device_map={"": 0},
+        max_memory={0: "12GiB", "cpu": "4GiB"},
+        low_cpu_mem_usage=True,
+    )
     base = prepare_model_for_kbit_training(base)
     # The SFT adapter is the policy starting point; TRL uses the frozen base+adapter
     # as the implicit reference model when ref_model is None.

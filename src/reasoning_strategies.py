@@ -6,7 +6,6 @@ import ast
 import math
 import re
 
-import a2_paths  # noqa: F401
 from answer_scoring import grounding_terms, score_answer
 from assignment2_queries import SYSTEM_ROLE
 from domain_lm import retrieve_topics

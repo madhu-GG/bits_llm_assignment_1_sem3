@@ -13,11 +13,13 @@ sacremoses
 datasets
 peft
 trl
+huggingface_hub
 bitsandbytes; platform_system == "Linux"
 
 # NumPy is used for reproducibility seeding. Avoid force-reinstalling it over
 # a prebuilt conda stack; the notebook writes Parquet through PyArrow.
 numpy>=1.23,<2
+psutil
 
 # SciPy and scikit-learn are intentionally not required. Transformers imports
 # scikit-learn optionally when it is installed.

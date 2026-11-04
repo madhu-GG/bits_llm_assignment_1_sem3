@@ -20,7 +20,6 @@ import re
 import textwrap
 from pathlib import Path
 
-import a2_paths  # noqa: F401  (adds Assignment 1 src/ to sys.path)
 from assignment2_queries import SAFETY_NOTE
 
 try:  # the topic knowledge base from Assignment 1

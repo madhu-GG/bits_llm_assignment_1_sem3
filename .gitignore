@@ -3,7 +3,9 @@
 .venv
 **/__pycache__/**
 raw_pdfs/*
+raw_pdfs.tgz
 domain_corpus/*
 artifacts/*
 clean_corpus/*
 extracted_text/*
+outputs/

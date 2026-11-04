@@ -12,7 +12,6 @@ import json
 import statistics
 from pathlib import Path
 
-import a2_paths  # noqa: F401
 import prompt_strategies as ps
 import reasoning_strategies as rs
 from answer_scoring import score_answer
