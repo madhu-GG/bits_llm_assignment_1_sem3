@@ -151,7 +151,7 @@ def train_dpo(preference_path, sft_adapter="adapter_B", output_dir=DPO_ADAPTER_D
         trainer_kwargs["peft_config"] = peft_config
     try:
         trainer = DPOTrainer(processing_class=tokenizer, **trainer_kwargs)
-    except TypeError:  # older TRL releases
+    except TypeError:  # TRL versions that take tokenizer= instead of processing_class=
         trainer = DPOTrainer(tokenizer=tokenizer, **trainer_kwargs)
     trainer.train()
     Path(output_dir).mkdir(parents=True, exist_ok=True)
