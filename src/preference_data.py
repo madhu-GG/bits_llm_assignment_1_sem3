@@ -42,41 +42,95 @@ def prompt_pool() -> list[str]:
 
 
 # Each generator returns (source_label, answer_text) for one prompt.
-def _chosen_generators(lm, query):
+def _chosen_generators(lm, query, cheap: bool = False):
     yield "cot", rs.run_cot(lm, query)["answer"]
-    yield "self_consistency_5", ps.run_self_consistency(lm, query)["answer"]
     yield "instruction", ps.run_instruction(lm, query)["answer"]
+    yield "few_shot_3", ps.run_few_shot(lm, query)["answer"]
     yield "self_reflection", rs.run_self_reflection(lm, query)["answer"]
+    if cheap:
+        return
+    yield "self_consistency_5", ps.run_self_consistency(lm, query)["answer"]
     yield "ape", ps.run_ape(lm, query)["answer"]
 
 
+def _pair_record(query, chosen, rejected, chosen_source, keywords, backend, margin):
+    chosen_score = score_answer(chosen, query, keywords)
+    rejected_score = score_answer(rejected, query, keywords)
+    if chosen_score["total"] - rejected_score["total"] < margin:
+        return None
+    topics = retrieve_topics(query, k=1)
+    return {
+        "prompt": query,
+        "chosen": chosen.strip(),
+        "rejected": rejected.strip(),
+        "chosen_source": chosen_source,
+        "rejected_source": "zero_shot",
+        "chosen_score": chosen_score["total"],
+        "rejected_score": rejected_score["total"],
+        "score_margin": round(chosen_score["total"] - rejected_score["total"], 2),
+        "chosen_words": chosen_score["words"],
+        "rejected_words": rejected_score["words"],
+        "topic": topics[0]["title"] if topics else "",
+        "backend": backend,
+    }
+
+
+def harvest_pairs(a1_rows, extra_rows=None, margin: float = MIN_SCORE_MARGIN) -> tuple[list[dict], int]:
+    """Turn already-run Part A/B outputs into preference pairs (no extra generations)."""
+    by_query: dict[str, dict] = {}
+    for row in list(a1_rows or []) + list(extra_rows or []):
+        query = row.get("query")
+        if not query:
+            continue
+        bucket = by_query.setdefault(query, {})
+        strategy = row.get("strategy") or row.get("technique")
+        if strategy:
+            bucket[strategy] = row
+    pairs, skipped = [], 0
+    held_out = {q.strip().lower() for q in HELD_OUT_QUERIES}
+    for query, bucket in by_query.items():
+        if query.strip().lower() in held_out:
+            continue
+        zero = bucket.get("zero_shot")
+        rejected = (zero or {}).get("answer") or (zero or {}).get("standard_answer")
+        if not rejected:
+            # CoT rows store the un-scaffolded answer as standard_answer.
+            for row in bucket.values():
+                if row.get("standard_answer"):
+                    rejected = row["standard_answer"]
+                    break
+        if not rejected:
+            continue
+        keywords = rs.keywords_for(query)
+        backend = next((row.get("backend") for row in bucket.values() if row.get("backend")), "unknown")
+        for source in ("instruction", "few_shot_3", "self_consistency_5", "ape", "cot", "self_reflection"):
+            row = bucket.get(source)
+            if not row:
+                continue
+            chosen = row.get("answer")
+            if not chosen:
+                continue
+            rec = _pair_record(query, chosen, rejected, source, keywords, backend, margin)
+            if rec is None:
+                skipped += 1
+            else:
+                pairs.append(rec)
+    return pairs, skipped
+
+
 def build_preference_pairs(lm, queries=None, min_pairs: int = 60,
-                           margin: float = MIN_SCORE_MARGIN) -> tuple[list[dict], dict]:
+                           margin: float = MIN_SCORE_MARGIN, cheap: bool = False) -> tuple[list[dict], dict]:
     queries = list(queries or prompt_pool())
     pairs, skipped = [], 0
     for query in queries:
         keywords = rs.keywords_for(query)
         rejected = lm.one(ps.zero_shot_prompt(query), max_new_tokens=ps.MAX_NEW_TOKENS, temperature=0.0)
-        rejected_score = score_answer(rejected, query, keywords)
-        for source, chosen in _chosen_generators(lm, query):
-            chosen_score = score_answer(chosen, query, keywords)
-            if chosen_score["total"] - rejected_score["total"] < margin:
+        for source, chosen in _chosen_generators(lm, query, cheap=cheap):
+            rec = _pair_record(query, chosen, rejected, source, keywords, lm.backend, margin)
+            if rec is None:
                 skipped += 1
                 continue
-            pairs.append({
-                "prompt": query,
-                "chosen": chosen.strip(),
-                "rejected": rejected.strip(),
-                "chosen_source": source,
-                "rejected_source": "zero_shot",
-                "chosen_score": chosen_score["total"],
-                "rejected_score": rejected_score["total"],
-                "score_margin": round(chosen_score["total"] - rejected_score["total"], 2),
-                "chosen_words": chosen_score["words"],
-                "rejected_words": rejected_score["words"],
-                "topic": retrieve_topics(query, k=1)[0]["title"] if retrieve_topics(query, k=1) else "",
-                "backend": lm.backend,
-            })
+            pairs.append(rec)
     stats = summarise(pairs)
     stats["skipped_low_margin"] = skipped
     stats["prompts_used"] = len(queries)

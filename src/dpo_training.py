@@ -14,6 +14,11 @@ from preference_data import load_jsonl
 from prompt_strategies import zero_shot_prompt
 from reasoning_strategies import keywords_for
 
+try:
+    from runtime import detect_runtime, load_causal_lm, training_budget
+except ImportError:
+    from src.runtime import detect_runtime, load_causal_lm, training_budget
+
 DPO_CONFIG = {
     "beta": 0.1,
     "num_train_epochs": 3,
@@ -50,13 +55,34 @@ def _resolve_targets(model, requested):
 
 
 def train_dpo(preference_path, sft_adapter="adapter_B", output_dir=DPO_ADAPTER_DIR, config=None):
-    """Fine-tune the Assignment 1 adapter with DPO. Requires a GPU runtime."""
-    import torch
+    """Fine-tune the Assignment 1 adapter with DPO.
+
+    CUDA uses 4-bit QLoRA and 3 epochs. CPU/MPS cannot hold a second full copy
+    of 1.5B weights, so DPO trains the existing LoRA adapter for a handful of
+    steps at a short sequence length. ``ref_model=None`` keeps the frozen
+    backbone as the implicit reference (no second 6 GB copy).
+    """
     from peft import LoraConfig, PeftModel, prepare_model_for_kbit_training
-    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+    from transformers import AutoTokenizer
     from trl import DPOConfig, DPOTrainer
 
+    runtime = detect_runtime()
+    budget = training_budget(runtime)
+    if not budget.get("can_load_model", True):
+        raise RuntimeError(budget.get("reason") or "Not enough RAM to load BioGPT-Large for DPO.")
+
     cfg = {**DPO_CONFIG, **(config or {})}
+    cfg["num_train_epochs"] = int(budget.get("dpo_epochs") or cfg["num_train_epochs"])
+    cfg["per_device_train_batch_size"] = int(budget.get("per_device_train_batch_size") or 1)
+    cfg["gradient_accumulation_steps"] = int(budget.get("gradient_accumulation_steps") or 1)
+    if budget.get("dpo_max_length"):
+        cfg["max_length"] = int(budget["dpo_max_length"])
+    if budget.get("dpo_max_prompt_length"):
+        cfg["max_prompt_length"] = int(budget["dpo_max_prompt_length"])
+    if budget.get("gpu_tier") == "t4":
+        cfg["max_length"] = min(int(cfg["max_length"]), 512)
+        cfg["max_prompt_length"] = min(int(cfg["max_prompt_length"]), 192)
+    dpo_steps = int(budget.get("dpo_max_steps") or 0)
     pairs = load_jsonl(preference_path)
     dataset = to_trl_dataset(pairs)
 
@@ -66,18 +92,10 @@ def train_dpo(preference_path, sft_adapter="adapter_B", output_dir=DPO_ADAPTER_D
         raise FileNotFoundError(
             f"Assignment 1 adapter not found at {adapter_dir}. Run Assignment 1 Part B first.")
 
-    quant = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
-                               bnb_4bit_compute_dtype=torch.float16, bnb_4bit_use_double_quant=True)
-    # Load onto the GPU directly. device_map="auto" can spill the 1.5B
-    # checkpoint into the 15 GB Colab system RAM and OOM the process.
-    base = AutoModelForCausalLM.from_pretrained(
-        source,
-        quantization_config=quant,
-        device_map={"": 0},
-        max_memory={0: "12GiB", "cpu": "4GiB"},
-        low_cpu_mem_usage=True,
-    )
-    base = prepare_model_for_kbit_training(base)
+    four_bit = bool(runtime.get("cuda") and budget.get("four_bit"))
+    base = load_causal_lm(source, four_bit=four_bit, gradient_checkpointing=True, runtime=runtime)
+    if four_bit:
+        base = prepare_model_for_kbit_training(base)
     # The SFT adapter is the policy starting point; TRL uses the frozen base+adapter
     # as the implicit reference model when ref_model is None.
     policy = PeftModel.from_pretrained(base, str(adapter_dir), is_trainable=True)
@@ -86,13 +104,18 @@ def train_dpo(preference_path, sft_adapter="adapter_B", output_dir=DPO_ADAPTER_D
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    peft_config = LoraConfig(
-        r=cfg["lora_r"], lora_alpha=cfg["lora_alpha"], lora_dropout=cfg["lora_dropout"],
-        bias="none", task_type="CAUSAL_LM",
-        target_modules=_resolve_targets(base, ["q_proj", "v_proj"]),
-    )
+    # On CUDA, TRL can wrap a fresh LoRA. On CPU the existing SFT LoRA is
+    # already the only set of trainable params that will fit.
+    peft_config = None
+    if runtime.get("cuda"):
+        peft_config = LoraConfig(
+            r=cfg["lora_r"], lora_alpha=cfg["lora_alpha"], lora_dropout=cfg["lora_dropout"],
+            bias="none", task_type="CAUSAL_LM",
+            target_modules=_resolve_targets(base, ["q_proj", "v_proj"]),
+        )
 
-    args = DPOConfig(
+    dtype = runtime.get("dtype")
+    args_kwargs = dict(
         output_dir=str(output_dir),
         beta=cfg["beta"],
         num_train_epochs=cfg["num_train_epochs"],
@@ -102,21 +125,34 @@ def train_dpo(preference_path, sft_adapter="adapter_B", output_dir=DPO_ADAPTER_D
         max_length=cfg["max_length"],
         max_prompt_length=cfg["max_prompt_length"],
         logging_steps=1,
-        save_strategy="epoch",
-        fp16=True,
+        save_strategy="no" if dpo_steps else "epoch",
+        fp16=bool(runtime.get("cuda") and dtype == "float16"),
+        bf16=bool(runtime.get("cuda") and dtype == "bfloat16"),
         report_to="none",
         seed=cfg["seed"],
         remove_unused_columns=False,
+        gradient_checkpointing=True,
+        dataloader_num_workers=0,
+        dataloader_pin_memory=False,
     )
-
+    if dpo_steps > 0:
+        args_kwargs["max_steps"] = dpo_steps
+        cfg["max_steps"] = dpo_steps
+    if not runtime.get("cuda") and not runtime.get("mps"):
+        args_kwargs["use_cpu"] = True
     try:
-        trainer = DPOTrainer(model=policy, ref_model=None, args=args,
-                             train_dataset=dataset, processing_class=tokenizer,
-                             peft_config=peft_config)
+        args = DPOConfig(**args_kwargs)
+    except TypeError:
+        args_kwargs.pop("use_cpu", None)
+        args = DPOConfig(**args_kwargs)
+
+    trainer_kwargs = dict(model=policy, ref_model=None, args=args, train_dataset=dataset)
+    if peft_config is not None:
+        trainer_kwargs["peft_config"] = peft_config
+    try:
+        trainer = DPOTrainer(processing_class=tokenizer, **trainer_kwargs)
     except TypeError:  # older TRL releases
-        trainer = DPOTrainer(model=policy, ref_model=None, args=args,
-                             train_dataset=dataset, tokenizer=tokenizer,
-                             peft_config=peft_config)
+        trainer = DPOTrainer(tokenizer=tokenizer, **trainer_kwargs)
     trainer.train()
     Path(output_dir).mkdir(parents=True, exist_ok=True)
     trainer.save_model(str(output_dir))
@@ -182,14 +218,20 @@ def _improvement_reason(sft_score, dpo_score) -> tuple[str, str]:
     return "Y", f"total {delta:+.1f} ({', '.join(reasons) or 'broad improvement'})"
 
 
-def compare_adapters(sft_lm, dpo_lm, queries=None, max_new_tokens=200) -> list[dict]:
+def generate_zero_shot(lm, queries=None, max_new_tokens=200) -> list[str]:
     queries = list(queries or HELD_OUT_QUERIES)
+    return [lm.one(zero_shot_prompt(query), max_new_tokens=max_new_tokens, temperature=0.0)
+            for query in queries]
+
+
+def compare_outputs(sft_outputs, dpo_outputs, queries=None) -> list[dict]:
+    """Score two already-generated output lists. Does not load a second model."""
+    queries = list(queries or HELD_OUT_QUERIES)
+    if len(sft_outputs) != len(dpo_outputs) or len(sft_outputs) != len(queries):
+        raise ValueError("SFT outputs, DPO outputs, and queries must be the same length.")
     rows = []
-    for index, query in enumerate(queries, 1):
+    for index, (query, sft_out, dpo_out) in enumerate(zip(queries, sft_outputs, dpo_outputs), 1):
         keywords = keywords_for(query)
-        prompt = zero_shot_prompt(query)
-        sft_out = sft_lm.one(prompt, max_new_tokens=max_new_tokens, temperature=0.0)
-        dpo_out = dpo_lm.one(prompt, max_new_tokens=max_new_tokens, temperature=0.0)
         sft_score = score_answer(sft_out, query, keywords)
         dpo_score = score_answer(dpo_out, query, keywords)
         improved, reason = _improvement_reason(sft_score, dpo_score)
@@ -204,6 +246,14 @@ def compare_adapters(sft_lm, dpo_lm, queries=None, max_new_tokens=200) -> list[d
             "reason": reason,
         })
     return rows
+
+
+def compare_adapters(sft_lm, dpo_lm, queries=None, max_new_tokens=200) -> list[dict]:
+    """Convenience wrapper. On a T4, generate SFT, close that LM, then generate DPO."""
+    queries = list(queries or HELD_OUT_QUERIES)
+    sft_outputs = generate_zero_shot(sft_lm, queries, max_new_tokens)
+    dpo_outputs = generate_zero_shot(dpo_lm, queries, max_new_tokens)
+    return compare_outputs(sft_outputs, dpo_outputs, queries)
 
 
 def comparison_summary(rows) -> dict:
