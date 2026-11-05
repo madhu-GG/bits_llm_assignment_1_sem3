@@ -89,12 +89,16 @@ def detect_runtime() -> dict:
         return base
 
     if torch.cuda.is_available():
-        bf16 = bool(getattr(torch.cuda, "is_bf16_supported", lambda: False)())
         props = torch.cuda.get_device_properties(0)
         free_b, total_b = torch.cuda.mem_get_info()
+        # Ampere (8.0+) has bf16 tensor cores. T4 is 7.5, so QLoRA compute
+        # and AMP stay on float16 even when is_bf16_supported() is True.
+        use_bf16 = props.major >= 8 and bool(
+            getattr(torch.cuda, "is_bf16_supported", lambda: False)()
+        )
         base.update({
             "device": "cuda",
-            "dtype": "bfloat16" if bf16 else "float16",
+            "dtype": "bfloat16" if use_bf16 else "float16",
             "cuda": True,
             "gpu_name": torch.cuda.get_device_name(0),
             "gpu_total_gb": round(total_b / 1024**3, 2),
@@ -207,6 +211,27 @@ def seed_everything(seed: int = 42) -> None:
             torch.cuda.manual_seed_all(seed)
     except ImportError:
         pass
+
+
+def autocast_dtype(runtime: dict | None = None) -> str:
+    """AMP / bitsandbytes compute dtype for this machine.
+
+    Pre-Ampere CUDA (T4 is CC 7.5) has no bf16 tensor cores. Mixing bf16
+    compute with float LoRA weights raises:
+    ``gemm input type BFloat16 and output type float is only supported for
+    CUDA devices with compute capability 8.0 or higher``.
+    """
+    runtime = runtime or detect_runtime()
+    if runtime.get("cuda"):
+        cc = str(runtime.get("gpu_cc") or "0.0")
+        try:
+            major = int(cc.split(".")[0])
+        except ValueError:
+            major = 0
+        if major < 8:
+            return "float16"
+        return runtime.get("dtype") or "bfloat16"
+    return runtime.get("dtype") or "float32"
 
 
 def gpu_tier(runtime: dict | None = None) -> str:
@@ -467,7 +492,7 @@ def load_causal_lm(
         print(f"4-bit load requested but this runtime has no CUDA; loading {kind} instead.")
 
     if runtime.get("cuda"):
-        dtype = torch.bfloat16 if runtime.get("dtype") == "bfloat16" else torch.float16
+        dtype = torch.bfloat16 if autocast_dtype(runtime) == "bfloat16" else torch.float16
     elif runtime.get("mps"):
         dtype = torch.float16 if runtime.get("dtype") == "float16" else torch.float32
     else:
@@ -536,7 +561,7 @@ def trainer_memory_kwargs(runtime: dict | None = None, budget: dict | None = Non
     """Hugging Face Trainer flags for the detected device."""
     runtime = runtime or detect_runtime()
     budget = budget or training_budget(runtime)
-    dtype = runtime.get("dtype")
+    dtype = autocast_dtype(runtime)
     cuda = bool(runtime.get("cuda"))
     kwargs = {
         "per_device_train_batch_size": budget["per_device_train_batch_size"],

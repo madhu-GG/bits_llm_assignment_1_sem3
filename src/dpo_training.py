@@ -14,10 +14,10 @@ from preference_data import load_jsonl
 from prompt_strategies import zero_shot_prompt
 from reasoning_strategies import keywords_for
 
-try:
-    from runtime import detect_runtime, load_causal_lm, training_budget
-except ImportError:
-    from src.runtime import detect_runtime, load_causal_lm, training_budget
+    try:
+        from runtime import autocast_dtype, detect_runtime, load_causal_lm, training_budget
+    except ImportError:
+        from src.runtime import autocast_dtype, detect_runtime, load_causal_lm, training_budget
 
 DPO_CONFIG = {
     "beta": 0.1,
@@ -114,7 +114,7 @@ def train_dpo(preference_path, sft_adapter="adapter_B", output_dir=DPO_ADAPTER_D
             target_modules=_resolve_targets(base, ["q_proj", "v_proj"]),
         )
 
-    dtype = runtime.get("dtype")
+    dtype = autocast_dtype(runtime)
     args_kwargs = dict(
         output_dir=str(output_dir),
         beta=cfg["beta"],
